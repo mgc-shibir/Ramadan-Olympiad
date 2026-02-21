@@ -8,15 +8,16 @@
     <style>
         @font-face {
             font-family: 'iOSBangla';
-            src: url('iOS Bangla Font.ttf') format('truetype');
+            src: url('https://fonts.cdnfonts.com/css/solaimanlipi') format('woff');
         }
 
         body {
-            font-family: 'iOSBangla', 'SolaimanLipi', sans-serif;
+            font-family: 'SolaimanLipi', 'Arial', sans-serif;
             background-color: #000000;
             color: #d1d1d1;
             user-select: none;
             -webkit-tap-highlight-color: transparent;
+            overflow-x: hidden;
         }
 
         .glass-card {
@@ -39,7 +40,6 @@
         .input-box:focus {
             border-color: #fdbb2d;
             outline: none;
-            background: #1a1a1a;
         }
 
         .option-card {
@@ -53,8 +53,6 @@
             transition: 0.2s;
         }
 
-        .option-card:hover { background: #1a1a1a; }
-
         input[type="radio"]:checked + .option-card {
             border-color: #fdbb2d;
             background: rgba(253, 187, 45, 0.1);
@@ -65,34 +63,44 @@
             position: sticky;
             top: 0;
             z-index: 100;
-            background: rgba(0,0,0,0.8);
+            background: rgba(0,0,0,0.9);
             backdrop-filter: blur(10px);
             border-bottom: 1px solid #333;
         }
 
-        #cheat-screen {
+        #cheat-screen, #status-screen {
             display: none;
             position: fixed;
             inset: 0;
             background: #000;
-            z-index: 9999;
+            z-index: 10000;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             text-align: center;
+            padding: 20px;
         }
     </style>
 </head>
 <body>
 
-    <!-- Cheat Detection -->
-    <div id="cheat-screen">
-        <h1 class="text-5xl font-bold text-red-600 mb-4">ধরা পড়েছেন!</h1>
-        <p class="text-xl text-gray-400 px-6">আপনি ট্যাব পরিবর্তনের চেষ্টা করেছেন। আপনার কুইজটি বাতিল করা হয়েছে।</p>
+    <!-- Time Status Screen (Countdown / Expired) -->
+    <div id="status-screen">
+        <div class="glass-card p-10 max-w-md w-full">
+            <h1 id="status-title" class="text-3xl font-bold text-[#fdbb2d] mb-4">অপেক্ষা করুন</h1>
+            <p id="status-msg" class="text-gray-400 mb-6 italic"></p>
+            <div id="countdown-timer" class="text-4xl font-mono text-white tracking-widest">00:00:00:00</div>
+        </div>
     </div>
 
-    <!-- 1. Registration -->
-    <div id="reg-screen" class="min-h-screen flex items-center justify-center p-4">
+    <!-- Cheat Detection Screen -->
+    <div id="cheat-screen">
+        <h1 class="text-5xl font-bold text-red-600 mb-4">ধরা পড়েছেন!</h1>
+        <p class="text-xl text-gray-400">ট্যাব পরিবর্তন করার কারণে আপনার পরীক্ষা বাতিল করা হয়েছে।</p>
+    </div>
+
+    <!-- 1. Registration Screen -->
+    <div id="reg-screen" class="hidden min-h-screen flex items-center justify-center p-4">
         <div class="glass-card w-full max-w-md p-8">
             <h1 class="text-2xl font-bold text-[#fdbb2d] mb-6 text-center">তথ্য প্রদান করুন</h1>
             <form id="reg-form" onsubmit="validateAndStart(event)" class="space-y-4">
@@ -108,25 +116,21 @@
                     <label class="text-xs text-gray-500 ml-1">শ্রেণী</label>
                     <select id="u-class" required class="input-box">
                         <option value="">নির্বাচন করুন</option>
-                        <option value="৬ষ্ঠ">৬ষ্ঠ</option>
-                        <option value="৭ম">৭ম</option>
-                        <option value="৮ম">৮ম</option>
-                        <option value="৯ম">৯ম</option>
-                        <option value="১০ম">১০ম</option>
-                        <option value="একাদশ">একাদশ</option>
-                        <option value="দ্বাদশ">দ্বাদশ</option>
+                        <option value="৬ষ্ঠ-৮ম">৬ষ্ঠ - ৮ম</option>
+                        <option value="৯ম-১০ম">৯ম - ১০ম</option>
+                        <option value="একাদশ-দ্বাদশ">একাদশ - দ্বাদশ</option>
                         <option value="অন্যান্য">অন্যান্য</option>
                     </select>
                 </div>
                 <div>
-                    <label class="text-xs text-gray-500 ml-1">হোয়াটসঅ্যাপ/ফোন নম্বর</label>
+                    <label class="text-xs text-gray-500 ml-1">ফোন নম্বর</label>
                     <input type="tel" id="u-phone" required pattern="0[0-9]{10}" class="input-box" placeholder="01XXXXXXXXX">
                 </div>
                 <div>
-                    <label class="text-xs text-gray-500 ml-1">ইমেইল ঠিকানা</label>
+                    <label class="text-xs text-gray-500 ml-1">ইমেইল</label>
                     <input type="email" id="u-email" required class="input-box" placeholder="example@mail.com">
                 </div>
-                <button type="submit" class="w-full bg-[#fdbb2d] text-black font-bold py-3 rounded-lg mt-4">
+                <button type="submit" class="w-full bg-[#fdbb2d] text-black font-bold py-3 rounded-lg mt-4 shadow-lg shadow-yellow-900/20">
                     কুইজ শুরু করুন
                 </button>
             </form>
@@ -137,38 +141,40 @@
     <div id="quiz-screen" class="hidden">
         <div class="timer-bar p-4 px-6 flex justify-between items-center">
             <div class="text-[#fdbb2d] font-bold text-xl" id="timer">30:00</div>
-            <div class="text-xs text-gray-500" id="live-user"></div>
+            <div class="text-sm font-medium" id="live-user"></div>
         </div>
-
         <div class="max-w-3xl mx-auto p-4 py-10">
             <form id="quiz-form" onsubmit="finalSubmit(event)">
                 <div id="questions-area" class="space-y-10"></div>
-                <button type="submit" class="w-full bg-green-600 text-white font-bold py-4 rounded-xl mt-12 mb-20">
+                <button type="submit" class="w-full bg-green-600 hover:bg-green-500 text-white font-bold py-4 rounded-xl mt-12 mb-20 transition">
                     ফাইনাল সাবমিট
                 </button>
             </form>
         </div>
     </div>
 
-    <!-- 3. Final Screen -->
-    <div id="result-screen" class="hidden min-h-screen flex items-center justify-center p-4">
-        <div class="glass-card w-full max-w-sm p-10 text-center">
+    <!-- 3. Final Result Screen -->
+    <div id="result-screen" class="hidden min-h-screen flex items-center justify-center p-4 text-center">
+        <div class="glass-card w-full max-w-sm p-10">
             <div class="text-green-500 text-6xl mb-4">✓</div>
             <h2 class="text-2xl font-bold mb-2">সাবমিট হয়েছে!</h2>
-            <p class="text-gray-400 text-sm">আপনার উত্তর সফলভাবে গ্রহণ করা হয়েছে। অংশগ্রহণ করার জন্য ধন্যবাদ।</p>
+            <p class="text-gray-400">অংশগ্রহণের জন্য ধন্যবাদ। ফলাফল পরবর্তীতে জানিয়ে দেয়া হবে।</p>
         </div>
     </div>
 
     <script>
-        // আপনার Web3Forms Access Key এখানে বসান
-        const apiKey = "6643cbde-8097-4e6b-ac06-8ab73cd89f03"; 
+        const apiKey = "6643cbde-8097-4e6b-ac06-8ab73cd89f03"; // Web3Forms Access Key
         
+        // Target Dates
+        const START_DATE = new Date("March 4, 2026 00:01:00").getTime();
+        const END_DATE = new Date("March 8, 2026 23:59:00").getTime();
+
         let countdown = 30 * 60;
         let timerTask;
         let testRunning = false;
         let selectedSet = [];
 
-        // এই db ভেরিয়েবলের ভেতর আপনার সব প্রশ্ন বসবে
+        // Question Database
         const db = [
             {q: "রমজান মাস কত নম্বর হিজরি মাস?", options: ["৭ম", "৮ম", "৯ম", "১০ম"], correct: "৯ম"},
     {q: "রমজান মাসে কোন বই নাযিল হয়?", options: ["তাওরাত", "যবুর", "ইঞ্জিল", "কুরআন"], correct: "কুরআন"},
@@ -371,16 +377,55 @@
     {q: "রমজানে বেশি কোন কাজ এড়ানো উচিত?", options: ["দান", "নামাজ", "মিথ্যা", "দোয়া"], correct: "মিথ্যা"},
     {q: "রমজান আমাদের কী শিক্ষা দেয়?", options: ["তাকওয়া ও ধৈর্য", "রাগ", "অহংকার", "হিংসা"], correct: "তাকওয়া ও ধৈর্য"}
 ];
+        ];
 
-        function shuffle(arr) {
-            return arr.sort(() => Math.random() - 0.5);
+        function shuffle(arr) { return arr.sort(() => Math.random() - 0.5); }
+
+        // Time Gating Logic
+        function checkAppStatus() {
+            const now = new Date().getTime();
+            const statusScreen = document.getElementById('status-screen');
+            const regScreen = document.getElementById('reg-screen');
+
+            if (now < START_DATE) {
+                // Not started yet
+                statusScreen.style.display = 'flex';
+                updateCountdown(START_DATE, "পরীক্ষা শুরু হতে বাকি:");
+                setTimeout(checkAppStatus, 1000);
+            } else if (now > END_DATE) {
+                // Expired
+                statusScreen.style.display = 'flex';
+                document.getElementById('status-title').innerText = "সময় শেষ!";
+                document.getElementById('status-title').classList.replace('text-[#fdbb2d]', 'text-red-500');
+                document.getElementById('status-msg').innerText = "দুঃখিত, কুইজের সময়সীমা পার হয়ে গেছে।";
+                document.getElementById('countdown-timer').style.display = 'none';
+            } else {
+                // Live
+                statusScreen.style.display = 'none';
+                regScreen.classList.remove('hidden');
+            }
         }
 
+        function updateCountdown(target, title) {
+            const now = new Date().getTime();
+            const diff = target - now;
+
+            const d = Math.floor(diff / (1000 * 60 * 60 * 24));
+            const h = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const m = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+            const s = Math.floor((diff % (1000 * 60)) / 1000);
+
+            document.getElementById('status-msg').innerText = title;
+            document.getElementById('countdown-timer').innerText = 
+                `${d}d : ${h}h : ${m}m : ${s}s`;
+        }
+
+        // Exam Core Logic
         function validateAndStart(e) {
             e.preventDefault();
             document.getElementById('reg-screen').classList.add('hidden');
             document.getElementById('quiz-screen').classList.remove('hidden');
-            document.getElementById('live-user').innerText = document.getElementById('u-name').value;
+            document.getElementById('live-user').innerText = `পরীক্ষার্থী: ${document.getElementById('u-name').value}`;
             
             testRunning = true;
             setupQuestions();
@@ -423,7 +468,7 @@
 
         function setupAntiCheat() {
             window.onblur = () => {
-                if(testRunning) autoEnd("Cheating Detected (Tab Change)");
+                if(testRunning) autoEnd("Cheating Detected");
             };
         }
 
@@ -446,7 +491,7 @@
             if(!testRunning) return;
             testRunning = false;
             clearInterval(timerTask);
-            submitData("Normal Submission");
+            submitData("User Submitted");
         }
 
         async function submitData(reason) {
@@ -456,33 +501,23 @@
                 if(ans === item.correct) score++;
             });
 
-            const timeTaken = 1800 - countdown;
-            const finalTime = `${Math.floor(timeTaken/60)}m ${timeTaken%60}s`;
-
-            // UI আপডেট (মার্কস দেখানো হবে না)
             document.getElementById('quiz-screen').classList.add('hidden');
             document.getElementById('result-screen').classList.remove('hidden');
 
             const formData = new FormData();
             formData.append("access_key", apiKey);
-            formData.append("subject", `Score: ${score}/50 - ${document.getElementById('u-name').value}`);
-            
-            formData.append("Full Name", document.getElementById('u-name').value);
-            formData.append("Institution", document.getElementById('u-inst').value);
-            formData.append("Class", document.getElementById('u-class').value);
-            formData.append("Phone", document.getElementById('u-phone').value);
-            formData.append("Email", document.getElementById('u-email').value);
-            formData.append("Score", `${score} / 50`);
-            formData.append("Duration", finalTime);
+            formData.append("subject", `Quiz: ${document.getElementById('u-name').value} (${score}/50)`);
+            formData.append("Name", document.getElementById('u-name').value);
+            formData.append("Score", score);
             formData.append("Status", reason);
 
             try {
-                await fetch("https://api.web3forms.com/submit", {
-                    method: "POST",
-                    body: formData
-                });
-            } catch (err) { }
+                await fetch("https://api.web3forms.com/submit", { method: "POST", body: formData });
+            } catch (err) {}
         }
+
+        // Run checking on load
+        window.onload = checkAppStatus;
     </script>
 </body>
 </html>

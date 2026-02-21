@@ -5,21 +5,18 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Secure Islamic Quiz Platform</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://www.gstatic.com/firebasejs/11.6.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/11.6.1/firebase-auth-compat.js"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@300;400;600;700&display=swap');
+        @font-face {
+            font-family: 'iOSBangla';
+            src: url('iOS Bangla Font.ttf') format('truetype');
+        }
 
         body {
-            font-family: 'Hind Siliguri', sans-serif;
-            background-color: #050505;
-            color: #e0e0e0;
+            font-family: 'iOSBangla', 'SolaimanLipi', sans-serif;
+            background-color: #000000;
+            color: #d1d1d1;
             user-select: none;
             -webkit-tap-highlight-color: transparent;
-            overflow-x: hidden;
-            margin: 0;
-            min-height: 100vh;
         }
 
         .glass-card {
@@ -42,6 +39,7 @@
         .input-box:focus {
             border-color: #fdbb2d;
             outline: none;
+            background: #1a1a1a;
         }
 
         .option-card {
@@ -55,6 +53,8 @@
             transition: 0.2s;
         }
 
+        .option-card:hover { background: #1a1a1a; }
+
         input[type="radio"]:checked + .option-card {
             border-color: #fdbb2d;
             background: rgba(253, 187, 45, 0.1);
@@ -65,13 +65,13 @@
             position: sticky;
             top: 0;
             z-index: 100;
-            background: rgba(0,0,0,0.95);
+            background: rgba(0,0,0,0.8);
             backdrop-filter: blur(10px);
             border-bottom: 1px solid #333;
         }
 
-        #status-screen, #cheat-screen, #loading-screen {
-            display: flex;
+        #cheat-screen {
+            display: none;
             position: fixed;
             inset: 0;
             background: #000;
@@ -80,44 +80,21 @@
             align-items: center;
             justify-content: center;
             text-align: center;
-            padding: 20px;
-        }
-
-        .hidden-screen {
-            display: none !important;
         }
     </style>
 </head>
 <body>
 
-    <!-- Loading Screen -->
-    <div id="loading-screen" class="hidden-screen">
-        <div class="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-[#fdbb2d]"></div>
-        <p class="mt-4 text-gray-400">তথ্য আপলোড হচ্ছে...</p>
+    <!-- Cheat Detection -->
+    <div id="cheat-screen">
+        <h1 class="text-5xl font-bold text-red-600 mb-4">ধরা পড়েছেন!</h1>
+        <p class="text-xl text-gray-400 px-6">আপনি ট্যাব পরিবর্তনের চেষ্টা করেছেন। আপনার কুইজটি বাতিল করা হয়েছে।</p>
     </div>
 
-    <!-- Time Status Screen -->
-    <div id="status-screen" class="hidden-screen">
-        <div class="glass-card p-10 max-w-md w-full">
-            <h1 id="status-title" class="text-3xl font-bold text-[#fdbb2d] mb-4">অপেক্ষা করুন</h1>
-            <p id="status-msg" class="text-gray-400 mb-6 italic"></p>
-            <div id="countdown-timer" class="text-3xl font-mono text-white tracking-widest bg-black p-4 rounded-lg border border-yellow-600/30">00:00:00:00</div>
-        </div>
-    </div>
-
-    <!-- Cheat Detection Screen -->
-    <div id="cheat-screen" class="hidden-screen">
-        <div class="glass-card p-10 text-center">
-            <h1 class="text-5xl font-bold text-red-600 mb-4">ধরা পড়েছেন!</h1>
-            <p class="text-xl text-gray-400">ট্যাব পরিবর্তন বা অনৈতিক চেষ্টার কারণে আপনার পরীক্ষা বাতিল করা হয়েছে।</p>
-        </div>
-    </div>
-
-    <!-- 1. Registration Screen -->
-    <div id="reg-screen" class="hidden-screen min-h-screen flex items-center justify-center p-4">
+    <!-- 1. Registration -->
+    <div id="reg-screen" class="min-h-screen flex items-center justify-center p-4">
         <div class="glass-card w-full max-w-md p-8">
-            <h1 class="text-2xl font-bold text-[#fdbb2d] mb-2 text-center">কুইজ রেজিস্ট্রেশন ২০২৬</h1>
-            <p class="text-gray-500 text-sm text-center mb-6">সঠিক তথ্য দিয়ে ডাটাবেসে নাম নথিভুক্ত করুন</p>
+            <h1 class="text-2xl font-bold text-[#fdbb2d] mb-6 text-center">তথ্য প্রদান করুন</h1>
             <form id="reg-form" onsubmit="validateAndStart(event)" class="space-y-4">
                 <div>
                     <label class="text-xs text-gray-500 ml-1">আপনার নাম</label>
@@ -127,22 +104,24 @@
                     <label class="text-xs text-gray-500 ml-1">প্রতিষ্ঠানের নাম</label>
                     <input type="text" id="u-inst" required class="input-box" placeholder="স্কুল/কলেজ/মাদ্রাসা">
                 </div>
-                <div class="grid grid-cols-2 gap-4">
-                    <div>
-                        <label class="text-xs text-gray-500 ml-1">শ্রেণী</label>
-                        <select id="u-class" required class="input-box">
-                            <option value="">নির্বাচন করুন</option>
-                            <option value="৬ষ্ঠ-৮ম">৬ষ্ঠ-৮ম</option>
-                            <option value="৯ম-১০ম">৯ম-১০ম</option>
-                            <option value="একাদশ-দ্বাদশ">১১শ-১২শ</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="text-xs text-gray-500 ml-1">ফোন নম্বর</label>
-                        <input type="tel" id="u-phone" required pattern="01[3-9][0-9]{8}" class="input-box" placeholder="017XXXXXXXX">
-                    </div>
+                <div>
+                    <label class="text-xs text-gray-500 ml-1">শ্রেণী</label>
+                    <select id="u-class" required class="input-box">
+                        <option value="">নির্বাচন করুন</option>
+                        <option value="৬ষ্ঠ">৬ষ্ঠ - ১০ম</option>
+                        <option value="একাদশ">একাদশ - দ্বাদশ</option>
+                        <option value="অন্যান্য">অনার্স - মাস্টার্স</option>
+                    </select>
                 </div>
-                <button type="submit" class="w-full bg-[#fdbb2d] text-black font-bold py-3 rounded-lg mt-4 shadow-lg hover:bg-yellow-500 transition">
+                <div>
+                    <label class="text-xs text-gray-500 ml-1">হোয়াটসঅ্যাপ/ফোন নম্বর</label>
+                    <input type="tel" id="u-phone" required pattern="0[0-9]{10}" class="input-box" placeholder="01XXXXXXXXX">
+                </div>
+                <div>
+                    <label class="text-xs text-gray-500 ml-1">ইমেইল ঠিকানা</label>
+                    <input type="email" id="u-email" required class="input-box" placeholder="example@mail.com">
+                </div>
+                <button type="submit" class="w-full bg-[#fdbb2d] text-black font-bold py-3 rounded-lg mt-4">
                     কুইজ শুরু করুন
                 </button>
             </form>
@@ -150,51 +129,42 @@
     </div>
 
     <!-- 2. Quiz Screen -->
-    <div id="quiz-screen" class="hidden-screen">
+    <div id="quiz-screen" class="hidden">
         <div class="timer-bar p-4 px-6 flex justify-between items-center">
             <div class="text-[#fdbb2d] font-bold text-xl" id="timer">30:00</div>
-            <div id="live-user" class="text-sm font-medium text-gray-400"></div>
+            <div class="text-xs text-gray-500" id="live-user"></div>
         </div>
+
         <div class="max-w-3xl mx-auto p-4 py-10">
             <form id="quiz-form" onsubmit="finalSubmit(event)">
                 <div id="questions-area" class="space-y-10"></div>
-                <button type="submit" class="w-full bg-green-600 hover:bg-green-500 text-white font-bold py-4 rounded-xl mt-12 mb-20 transition">
+                <button type="submit" class="w-full bg-green-600 text-white font-bold py-4 rounded-xl mt-12 mb-20">
                     ফাইনাল সাবমিট
                 </button>
             </form>
         </div>
     </div>
 
-    <!-- 3. Final Result Screen -->
-    <div id="result-screen" class="hidden-screen min-h-screen flex items-center justify-center p-4 text-center">
-        <div class="glass-card w-full max-w-sm p-10">
+    <!-- 3. Final Screen -->
+    <div id="result-screen" class="hidden min-h-screen flex items-center justify-center p-4">
+        <div class="glass-card w-full max-w-sm p-10 text-center">
             <div class="text-green-500 text-6xl mb-4">✓</div>
             <h2 class="text-2xl font-bold mb-2">সাবমিট হয়েছে!</h2>
-            <p id="final-msg" class="text-gray-400">অংশগ্রহণের জন্য ধন্যবাদ। আপনার স্কোর এবং ফলাফল পরবর্তীতে জানিয়ে দেয়া হবে।</p>
+            <p class="text-gray-400 text-sm">আপনার উত্তর সফলভাবে গ্রহণ করা হয়েছে। অংশগ্রহণ করার জন্য ধন্যবাদ।</p>
         </div>
     </div>
 
     <script>
-        // API & DATABASE CONFIG
-        const apiKey = "6643cbde-8097-4e6b-ac06-8ab73cd89f03"; // Gemini API Key Placeholder
-        const firebaseConfig = JSON.parse(__firebase_config);
-        firebase.initializeApp(firebaseConfig);
-        const db = firebase.firestore();
-        const auth = firebase.auth();
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'quiz-2026';
-
-        // Target Dates (2026)
-        const START_DATE = new Date("March 4, 2026 00:01:00").getTime();
-        const END_DATE = new Date("March 8, 2026 23:59:00").getTime();
-
+        // আপনার Web3Forms Access Key এখানে বসান
+        const apiKey = "6643cbde-8097-4e6b-ac06-8ab73cd89f03"; 
+        
         let countdown = 30 * 60;
         let timerTask;
         let testRunning = false;
-        let userData = {};
-        let selectedQuestions = [];
+        let selectedSet = [];
 
-        // Main Question Pool (Reduced for sample, usually 150+)
-        const questionPool = [
+        // এই db ভেরিয়েবলের ভেতর আপনার সব প্রশ্ন বসবে
+        const db = [
             {q: "রমজান মাস কত নম্বর হিজরি মাস?", options: ["৭ম", "৮ম", "৯ম", "১০ম"], correct: "৯ম"},
     {q: "রমজান মাসে কোন বই নাযিল হয়?", options: ["তাওরাত", "যবুর", "ইঞ্জিল", "কুরআন"], correct: "কুরআন"},
     {q: "রমজান মাসে মুসলমানরা কী রাখে?", options: ["হজ", "রোজা", "যাকাত", "কুরবানি"], correct: "রোজা"},
@@ -395,61 +365,17 @@
     {q: "রোজা রেখে নামাজ পড়া কী?", options: ["দরকার নেই", "গুরুত্বপূর্ণ", "নিষেধ", "খেলা"], correct: "গুরুত্বপূর্ণ"},
     {q: "রমজানে বেশি কোন কাজ এড়ানো উচিত?", options: ["দান", "নামাজ", "মিথ্যা", "দোয়া"], correct: "মিথ্যা"},
     {q: "রমজান আমাদের কী শিক্ষা দেয়?", options: ["তাকওয়া ও ধৈর্য", "রাগ", "অহংকার", "হিংসা"], correct: "তাকওয়া ও ধৈর্য"}
-            // ... (Your 150 questions here)
-        ];
+];
 
-        async function initAuth() {
-            if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-                await auth.signInWithCustomToken(__initial_auth_token);
-            } else {
-                await auth.signInAnonymously();
-            }
+        function shuffle(arr) {
+            return arr.sort(() => Math.random() - 0.5);
         }
 
-        function checkAppStatus() {
-            const now = new Date().getTime();
-            const statusScreen = document.getElementById('status-screen');
-            const regScreen = document.getElementById('reg-screen');
-
-            if (now < START_DATE) {
-                statusScreen.classList.remove('hidden-screen');
-                updateCountdown(START_DATE, "পরীক্ষা শুরু হতে বাকি:");
-                setTimeout(checkAppStatus, 1000);
-            } else if (now > END_DATE) {
-                statusScreen.classList.remove('hidden-screen');
-                document.getElementById('status-title').innerText = "সময় শেষ!";
-                document.getElementById('status-msg').innerText = "২০২৬ সালের কুইজ সমাপ্ত হয়েছে।";
-                document.getElementById('countdown-timer').style.display = 'none';
-            } else {
-                statusScreen.classList.add('hidden-screen');
-                regScreen.classList.remove('hidden-screen');
-            }
-        }
-
-        function updateCountdown(target, title) {
-            const now = new Date().getTime();
-            const diff = target - now;
-            const d = Math.floor(diff / (1000 * 60 * 60 * 24));
-            const h = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-            const m = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-            const s = Math.floor((diff % (1000 * 60)) / 1000);
-            document.getElementById('status-msg').innerText = title;
-            document.getElementById('countdown-timer').innerText = `${d}d : ${h}h : ${m}m : ${s}s`;
-        }
-
-        async function validateAndStart(e) {
+        function validateAndStart(e) {
             e.preventDefault();
-            userData = {
-                name: document.getElementById('u-name').value,
-                inst: document.getElementById('u-inst').value,
-                class: document.getElementById('u-class').value,
-                phone: document.getElementById('u-phone').value,
-                startTime: firebase.firestore.FieldValue.serverTimestamp()
-            };
-
-            document.getElementById('reg-screen').classList.add('hidden-screen');
-            document.getElementById('quiz-screen').classList.remove('hidden-screen');
-            document.getElementById('live-user').innerText = `পরীক্ষার্থী: ${userData.name}`;
+            document.getElementById('reg-screen').classList.add('hidden');
+            document.getElementById('quiz-screen').classList.remove('hidden');
+            document.getElementById('live-user').innerText = document.getElementById('u-name').value;
             
             testRunning = true;
             setupQuestions();
@@ -458,21 +384,26 @@
         }
 
         function setupQuestions() {
-            selectedQuestions = questionPool.sort(() => 0.5 - Math.random()).slice(0, 50);
+            selectedSet = shuffle([...db]).slice(0, 50);
             const area = document.getElementById('questions-area');
-            area.innerHTML = selectedQuestions.map((item, i) => `
-                <div class="bg-[#0a0a0a] p-6 rounded-xl border border-gray-800">
-                    <p class="text-lg font-bold mb-4"><span class="text-[#fdbb2d]">${i+1}.</span> ${item.q}</p>
+            area.innerHTML = ''; 
+
+            selectedSet.forEach((item, i) => {
+                const shuffledOptions = shuffle([...item.options]);
+                const qBlock = document.createElement('div');
+                qBlock.innerHTML = `
+                    <p class="text-lg font-bold text-gray-100 mb-4"><span class="text-[#fdbb2d]">${i+1}.</span> ${item.q}</p>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-                        ${item.options.sort(() => 0.5 - Math.random()).map(opt => `
+                        ${shuffledOptions.map(opt => `
                             <label>
-                                <input type="radio" name="q${i}" value="${opt}" class="hidden" required>
+                                <input type="radio" name="q${i}" value="${opt}" class="hidden">
                                 <span class="option-card">${opt}</span>
                             </label>
                         `).join('')}
                     </div>
-                </div>
-            `).join('');
+                `;
+                area.appendChild(qBlock);
+            });
         }
 
         function startTimer() {
@@ -486,82 +417,67 @@
         }
 
         function setupAntiCheat() {
-            window.onblur = () => { if(testRunning) autoEnd("Cheating Detected"); };
-            document.addEventListener('contextmenu', e => e.preventDefault());
-        }
-
-        async function finalSubmit(e) {
-            if(e) e.preventDefault();
-            if(!testRunning) return;
-            testRunning = false;
-            clearInterval(timerTask);
-
-            document.getElementById('quiz-screen').classList.add('hidden-screen');
-            document.getElementById('loading-screen').classList.remove('hidden-screen');
-
-            // Calculate Score
-            let score = 0;
-            const form = document.getElementById('quiz-form');
-            selectedQuestions.forEach((q, i) => {
-                const selected = form.elements[`q${i}`].value;
-                if(selected === q.correct) score++;
-            });
-
-            // Save to Firestore
-            try {
-                const user = auth.currentUser;
-                if (user) {
-                    await db.collection('artifacts').doc(appId).collection('public').doc('data').collection('results').add({
-                        ...userData,
-                        score: score,
-                        totalQuestions: selectedQuestions.length,
-                        uid: user.uid,
-                        submittedAt: firebase.firestore.FieldValue.serverTimestamp()
-                    });
-                }
-                
-                // Optional: Gemini API Analysis
-                await analyzePerformance(score);
-
-            } catch (err) {
-                console.error("Save Error:", err);
-            }
-
-            document.getElementById('loading-screen').classList.add('hidden-screen');
-            document.getElementById('result-screen').classList.remove('hidden-screen');
-        }
-
-        async function analyzePerformance(score) {
-            if (!apiKey) return;
-            try {
-                const prompt = `A student scored ${score} out of 50 in an Islamic Quiz. Give a one-line encouragement in Bengali.`;
-                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`, {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
-                });
-                const data = await response.json();
-                const aiMsg = data.candidates?.[0]?.content?.parts?.[0]?.text;
-                if(aiMsg) document.getElementById('final-msg').innerText = aiMsg;
-            } catch (e) {}
+            window.onblur = () => {
+                if(testRunning) autoEnd("Cheating Detected (Tab Change)");
+            };
         }
 
         function autoEnd(reason) {
             if(!testRunning) return;
-            if(reason === "Cheating Detected") {
-                testRunning = false;
-                clearInterval(timerTask);
-                document.getElementById('quiz-screen').classList.add('hidden-screen');
-                document.getElementById('cheat-screen').classList.remove('hidden-screen');
+            testRunning = false;
+            clearInterval(timerTask);
+            
+            if(reason.includes("Cheating")) {
+                document.getElementById('quiz-screen').classList.add('hidden');
+                document.getElementById('cheat-screen').style.display = 'flex';
+                submitData(reason);
             } else {
-                finalSubmit();
+                submitData(reason);
             }
         }
 
-        window.onload = async () => {
-            await initAuth();
-            checkAppStatus();
-        };
+        function finalSubmit(e) {
+            e.preventDefault();
+            if(!testRunning) return;
+            testRunning = false;
+            clearInterval(timerTask);
+            submitData("Normal Submission");
+        }
+
+        async function submitData(reason) {
+            let score = 0;
+            selectedSet.forEach((item, i) => {
+                const ans = document.querySelector(`input[name="q${i}"]:checked`)?.value;
+                if(ans === item.correct) score++;
+            });
+
+            const timeTaken = 1800 - countdown;
+            const finalTime = `${Math.floor(timeTaken/60)}m ${timeTaken%60}s`;
+
+            // UI আপডেট (মার্কস দেখানো হবে না)
+            document.getElementById('quiz-screen').classList.add('hidden');
+            document.getElementById('result-screen').classList.remove('hidden');
+
+            const formData = new FormData();
+            formData.append("access_key", apiKey);
+            formData.append("subject", `Score: ${score}/50 - ${document.getElementById('u-name').value}`);
+            
+            formData.append("Full Name", document.getElementById('u-name').value);
+            formData.append("Institution", document.getElementById('u-inst').value);
+            formData.append("Class", document.getElementById('u-class').value);
+            formData.append("Phone", document.getElementById('u-phone').value);
+            formData.append("Email", document.getElementById('u-email').value);
+            formData.append("Score", `${score} / 50`);
+            formData.append("Duration", finalTime);
+            formData.append("Status", reason);
+
+            try {
+                await fetch("https://api.web3forms.com/submit", {
+                    method: "POST",
+                    body: formData
+                });
+            } catch (err) { }
+        }
     </script>
 </body>
 </html>

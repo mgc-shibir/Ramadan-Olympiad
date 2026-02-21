@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Islamic Quiz Challenge</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @font-face {
+            font-family: 'iOS Bangla';
+            src: url('iOS Bangla Font.ttf') format('truetype');
+        }
+
+        body {
+            font-family: 'iOS Bangla', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #0a0a0a;
+            color: #ffffff;
+            user-select: none;
+            overflow-x: hidden;
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+        }
+
+        .option-card {
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .option-card:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: #3b82f6;
+        }
+
+        input:checked + .option-content {
+            background: #1e40af;
+            border-color: #3b82f6;
+        }
+
+        select option {
+            background-color: #1a1a1a;
+            color: white;
+        }
+
+        #timer-container {
+            position: sticky;
+            top: 0;
+            z-index: 50;
+            background: rgba(10, 10, 10, 0.9);
+            backdrop-filter: blur(10px);
+        }
+
+        #cheat-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: #000;
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+        }
+
+        .error-text {
+            color: #ef4444;
+            font-size: 0.75rem;
+            margin-top: 4px;
+            display: none;
+        }
+    </style>
+</head>
+<body class="min-h-screen p-4 md:p-8">
+
+    <!-- Cheat Detection Overlay -->
+    <div id="cheat-overlay">
+        <div class="p-8">
+            <h1 class="text-4xl font-bold text-red-500 mb-4">Caught Red Handed!</h1>
+            <p class="text-xl text-gray-300">Sorry but you caught red handed while cheating. Your exam has been terminated.</p>
+        </div>
+    </div>
+
+    <!-- Intro Form -->
+    <div id="intro-screen" class="max-w-md mx-auto mt-10 glass-card p-8 shadow-2xl">
+        <h2 class="text-3xl font-bold mb-6 text-center text-blue-400">কুইজ রেজিস্ট্রেশন</h2>
+        <form id="reg-form" onsubmit="event.preventDefault(); validateAndStart();" class="space-y-4">
+            <div>
+                <label class="block text-sm text-gray-400 mb-1">আপনার নাম</label>
+                <input type="text" id="user-name" required class="w-full bg-transparent border border-gray-700 rounded-lg p-3 focus:outline-none focus:border-blue-500" placeholder="সম্পূর্ণ নাম">
+            </div>
+            <div>
+                <label class="block text-sm text-gray-400 mb-1">শিক্ষা প্রতিষ্ঠানের নাম</label>
+                <input type="text" id="user-inst" required class="w-full bg-transparent border border-gray-700 rounded-lg p-3 focus:outline-none focus:border-blue-500" placeholder="প্রতিষ্ঠানের নাম">
+            </div>
+            <div>
+                <label class="block text-sm text-gray-400 mb-1">শ্রেণি/ক্লাস</label>
+                <select id="user-class" required class="w-full bg-transparent border border-gray-700 rounded-lg p-3 focus:outline-none focus:border-blue-500 appearance-none">
+                    <option value="" disabled selected>শ্রেণি নির্বাচন করুন</option>
+                    <option value="6">৬ষ্ঠ শ্রেণি</option>
+                    <option value="7">৭ম শ্রেণি</option>
+                    <option value="8">৮ম শ্রেণি</option>
+                    <option value="9">৯ম শ্রেণি</option>
+                    <option value="10">১০ম শ্রেণি</option>
+                    <option value="11">১১শ শ্রেণি</option>
+                    <option value="12">১২শ শ্রেণি</option>
+                    <option value="IV">অনার্স / মাস্টার্স</option>
+                </select>
+            </div>
+            <div>
+                <label class="block text-sm text-gray-400 mb-1">হোয়াটসঅ্যাপ নম্বর (১১ ডিজিট)</label>
+                <input type="tel" id="user-wa" required pattern="[0-9]{11}" class="w-full bg-transparent border border-gray-700 rounded-lg p-3 focus:outline-none focus:border-blue-500" placeholder="017XXXXXXXX">
+                <p id="wa-error" class="error-text">সঠিক ১১ ডিজিটের নম্বর দিন</p>
+            </div>
+            <div>
+                <label class="block text-sm text-gray-400 mb-1">ইমেইল ঠিকানা</label>
+                <input type="email" id="user-email" required class="w-full bg-transparent border border-gray-700 rounded-lg p-3 focus:outline-none focus:border-blue-500" placeholder="example@mail.com">
+                <p id="email-error" class="error-text">একটি সঠিক ইমেইল অ্যাড্রেস দিন</p>
+            </div>
+            
+            <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-lg transition mt-4 transform active:scale-95">
+                পরীক্ষা শুরু করুন
+            </button>
+        </form>
+        <p class="mt-4 text-xs text-gray-500 text-center">সময়: ৩০ মিনিট | প্রশ্ন: ৫০ (রেন্ডম)</p>
+    </div>
+
+    <!-- Quiz Area -->
+    <div id="quiz-screen" class="hidden max-w-3xl mx-auto">
+        <div id="timer-container" class="flex justify-between items-center py-4 mb-6 border-b border-gray-800 px-4 rounded-b-xl">
+            <div class="flex items-center gap-3">
+                <div class="h-10 w-10 bg-blue-600 rounded-full flex items-center justify-center font-bold text-xl" id="avatar-init">?</div>
+                <div>
+                    <h3 id="display-name" class="text-blue-400 font-bold leading-none mb-1"></h3>
+                    <p id="display-info" class="text-xs text-gray-500"></p>
+                </div>
+            </div>
+            <div class="text-right">
+                <span class="text-xs text-gray-400 block uppercase tracking-widest">Time Remaining</span>
+                <div id="timer" class="text-2xl font-mono font-bold text-red-500">30:00</div>
+            </div>
+        </div>
+
+        <form id="quiz-form">
+            <div id="questions-container" class="space-y-8">
+                <!-- Questions injected by JS -->
+            </div>
+
+            <button type="submit" class="my-12 w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-xl transition shadow-lg transform active:scale-95">
+                ফাইনাল সাবমিট
+            </button>
+        </form>
+    </div>
+
+    <!-- Final Message Screen -->
+    <div id="result-screen" class="hidden max-w-md mx-auto mt-20 glass-card p-10 text-center">
+        <div class="mb-6 text-green-500 scale-125">
+            <svg class="w-20 h-20 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+        </div>
+        <h2 class="text-3xl font-bold mb-4 text-blue-400">জাজাকাল্লাহ!</h2>
+        <p class="text-xl text-gray-300 leading-relaxed mb-6">
+            আপনার সময়ের জন্য অসংখ্য ধন্যবাদ। আপনার উত্তরপত্রটি সফলভাবে জমা হয়েছে।
+        </p>
+        <div class="w-16 h-1 bg-blue-600 mx-auto rounded-full mb-6"></div>
+        <p class="text-sm text-gray-500 italic">ফলাফল যথাসময়ে আপনার সাথে শেয়ার করা হবে।</p>
+    </div>
+
+    <script>
+        const allQuestions = [
+            { q: "রমজান মাস কত নম্বর হিজরি মাস?", a: "৭ম", b: "৮ম", c: "৯ম", d: "১০ম", correct: "c" },
+            { q: "রমজান মাসে কোন বই নাযিল হয়?", a: "তাওরাত", b: "যবুর", c: "ইঞ্জিল", d: "কুরআন", correct: "d" },
+            { q: "রমজান মাসে মুসলমানরা কী রাখে?", a: "হজ", b: "রোজা", c: "যাকাত", d: "কুরবানি", correct: "b" },
+            { q: "রোজা রাখার নিয়ত কখন করা হয়?", a: "রাতে", b: "দুপুরে", c: "বিকেলে", d: "সন্ধ্যায়", correct: "a" },
+            { q: "সেহরি খাওয়া হয় কখন?", a: "বিকেলে", b: "রাতে", c: "ফজরের আগে", d: "মাগরিবের পরে", correct: "c" },
+            { q: "ইফতার করা হয় কখন?", a: "ফজরের সময়", b: "যোহরের সময়", c: "আসরের সময়", d: "মাগরিবের সময়", correct: "d" },
+            { q: "রমজানের সবচেয়ে মর্যাদাপূর্ণ রাত কোনটি?", a: "শবে বরাত", b: "শবে কদর", c: "শবে মেরাজ", d: "জুমার রাত", correct: "b" },
+            { q: "রোজা ফরজ হয়েছে কোন বছরে?", a: "১ম হিজরি", b: "২য় হিজরি", c: "৩য় হিজরি", d: "৪র্থ হিজরি", correct: "b" },
+            { q: "রোজা রাখলে কী পাওয়া যায়?", a: "গুনাহ", b: "শাস্তি", c: "সওয়াব", d: "ক্ষতি", correct: "c" },
+            { q: "রমজান কত দিনের মাস?", a: "২০", b: "২৫", c: "২৯ বা ৩০", d: "৩৫", correct: "c" },
+            { q: "রোজা ভাঙা হয় কী দিয়ে?", a: "ভাত", b: "পানি", c: "খেজুর", d: "মাংস", correct: "c" },
+            { q: "রোজা ইসলামের কত নম্বর স্তম্ভ?", a: "১ম", b: "২য়", c: "৩য়", d: "৪র্থ", correct: "d" },
+            { q: "তারাবিহ নামাজ পড়া হয় কোন মাসে?", a: "শাবান", b: "রমজান", c: "জিলহজ", d: "মহররম", correct: "b" },
+            { q: "তারাবিহ নামাজ কত রাকাত পড়া হয়?", a: "২", b: "৪", c: "৮ বা ২০", d: "৩০", correct: "c" },
+            { q: "রোজা রাখার আরবি শব্দ কী?", a: "সালাত", b: "সাউম", c: "যাকাত", d: "হজ", correct: "b" },
+            { q: "রোজা রাখলে কী নিয়ন্ত্রণ করা শিখি?", a: "রাগ", b: "লোভ", c: "খাওয়া-দাওয়া", d: "সবগুলো", correct: "d" },
+            { q: "ইফতারের সময় কোন দোয়া পড়া হয়?", a: "খাবারের দোয়া", b: "রোজা ভাঙার দোয়া", c: "ঘুমের দোয়া", d: "সফরের দোয়া", correct: "b" },
+            { q: "রমজানের পরে কোন ঈদ আসে?", a: "ঈদুল আজহা", b: "ঈদুল ফিতর", c: "মিলাদ", d: "শবে বরাত", correct: "b" },
+            { q: "ফিতরা দেওয়া হয় কোন ঈদের আগে?", a: "ঈদুল আজহা", b: "ঈদুল ফিতর", c: "মিলাদ", d: "শবে বরাত", correct: "b" },
+            { q: "রমজান মাসে বেশি কী করা উচিত?", a: "খেলা", b: "ঘুম", c: "ইবাদত", d: "ভ্রমণ", correct: "c" },
+            { q: "রোজা শুরু হয় কোন আজান দিয়ে?", a: "ফজর", b: "যোহর", c: "আসর", d: "মাগরিব", correct: "a" },
+            { q: "রোজা ভাঙে কোন আজানে?", a: "ফজর", b: "যোহর", c: "আসর", d: "মাগরিব", correct: "d" },
+            { q: "লাইলাতুল কদর কোন দশকে খোঁজা হয়?", a: "প্রথম", b: "দ্বিতীয়", c: "শেষ", d: "মাঝামাঝি", correct: "c" },
+            { q: "রমজানে কোন নামাজ জামাতে বেশি পড়া হয়?", a: "তাহাজ্জুদ", b: "তারাবিহ", c: "ইশরাক", d: "চাশত", correct: "b" },
+            { q: "রোজা কার উপর ফরজ?", a: "ছোট শিশু", b: "অসুস্থ", c: "প্রাপ্তবয়স্ক মুসলিম", d: "ভ্রমণকারী", correct: "c" },
+            { q: "রমজান মাস রহমতের মাস বলা হয় কেন?", a: "বেশি খাবার", b: "বেশি সওয়াব", c: "বেশি ঘুম", d: "বেশি কাজ", correct: "b" },
+            { q: "রোজা রেখে মিথ্যা বললে কী হয়?", a: "সওয়াব বাড়ে", b: "গুনাহ হয়", c: "রোজা মজবুত হয়", d: "কিছুই না", correct: "b" },
+            { q: "সেহরি খাওয়া কী?", a: "ফরজ", b: "ওয়াজিব", c: "সুন্নত", d: "হারাম", correct: "c" },
+            { q: "রমজানে কুরআন খতম করা কী কাজ?", a: "ভালো কাজ", b: "খারাপ কাজ", c: "খেলাধুলা", d: "নিষেধ", correct: "a" },
+            { q: "রোজা রাখলে কষ্ট সহ্য করার শিক্ষা হয় কী?", a: "ধৈর্য", b: "রাগ", c: "অলসতা", d: "ভয়", correct: "a" },
+            { q: "রমজান মাসে শয়তানকে কী করা হয়?", a: "মুক্ত", b: "শক্তিশালী", c: "বন্দি", d: "রাজা", correct: "c" },
+            { q: "রোজা রেখে ঝগড়া করা উচিত কি?", a: "হ্যাঁ", b: "না", c: "মাঝে মাঝে", d: "সব সময়", correct: "b" },
+            { q: "তারাবিহ নামাজ পড়া হয় কোন ওয়াক্তের পর?", a: "মাগরিব", b: "ইশা", c: "ফজর", d: "যোহর", correct: "b" },
+            { q: "রমজানে দান করলে কী হয়?", a: "গুনাহ", b: "ক্ষতি", c: "সওয়াব", d: "সমস্যা", correct: "c" },
+            { q: "রোজা রেখে গীবত করা কী?", a: "ভালো", b: "নিষেধ", c: "ফরজ", d: "সুন্নত", correct: "b" },
+            { q: "রমজান মাসের শেষ দশ দিন কী বলা হয়?", a: "রহমত", b: "মাগফিরাত", c: "নাজাত", d: "শাস্তি", correct: "c" },
+            { q: "ইফতারের সময় আগে কী করা ভালো?", a: "নামাজ", b: "দোয়া", c: "ঘুম", d: "খেলা", correct: "b" },
+            { q: "রোজা ইসলামের কতটি স্তম্ভের একটি?", a: "৩", b: "৪", c: "৫", d: "৬", correct: "c" },
+            { q: "রমজানে বেশি কোন কাজ করা উচিত?", a: "কুরআন তিলাওয়াত", b: "সিনেমা", c: "ঝগড়া", d: "আড্ডা", correct: "a" },
+            { q: "রোজা ভাঙলে কী করতে হয়?", a: "হাসা", b: "কাজা রাখা", c: "ঘুমানো", d: "খেলা", correct: "b" },
+            { q: "রমজানে বেশি কী পড়া হয়?", a: "গল্পের বই", b: "কুরআন", c: "পত্রিকা", d: "উপন্যাস", correct: "b" },
+            { q: "রোজা রাখার উদ্দেশ্য কী?", a: "তাকওয়া অর্জন", b: "মোটা হওয়া", c: "ঘুমানো", d: "খেলাধুলা", correct: "a" },
+            { q: "লাইলাতুল কদর হাজার কত মাসের চেয়ে উত্তম?", a: "১০", b: "৫০", c: "১০০", d: "১০০০", correct: "d" },
+            { q: "রমজানে বেশি কোন দোয়া করা উচিত?", a: "দুনিয়ার", b: "আখিরাতের", c: "সব দোয়া", d: "কোনো দোয়া না", correct: "c" },
+            { q: "রোজা রেখে চুরি করা কী?", a: "সওয়াব", b: "গুনাহ", c: "ফরজ", d: "সুন্নত", correct: "b" },
+            { q: "রমজান মাসে জাহান্নামের দরজা কী হয়?", a: "খোলা", b: "বন্ধ", c: "বড়", d: "ছোট", correct: "b" },
+            { q: "রোজা রেখে নামাজ না পড়া ঠিক কি?", a: "হ্যাঁ", b: "না", c: "কখনো কখনো", d: "সমস্যা নেই", correct: "b" },
+            { q: "রমজানে বেশি কী চাওয়া উচিত?", a: "টাকা", b: "ক্ষমা", c: "খেলনা", d: "পোশাক", correct: "b" },
+            { q: "রোজা কার জন্য সহজ নয়?", a: "ধৈর্যশীল", b: "অলস", c: "অসুস্থ", d: "সৎ", correct: "c" },
+            { q: "রমজান মাস মুসলমানদের জন্য কী?", a: "শাস্তির মাস", b: "রহমতের মাস", c: "খেলার মাস", d: "ঘুমের মাস", correct: "b" }
+        ];
+
+        let quizData = [];
+        let timer;
+        let timeLeft = 30 * 60;
+        let isActive = false;
+        let startTime;
+
+        function validateAndStart() {
+            const wa = document.getElementById('user-wa').value;
+            const email = document.getElementById('user-email').value;
+            const cls = document.getElementById('user-class').value;
+            let isValid = true;
+
+            if (!cls) isValid = false;
+
+            if (!/^[0-9]{11}$/.test(wa)) {
+                document.getElementById('wa-error').style.display = 'block';
+                isValid = false;
+            } else {
+                document.getElementById('wa-error').style.display = 'none';
+            }
+
+            if (!email.includes('@') || email.length < 5) {
+                document.getElementById('email-error').style.display = 'block';
+                isValid = false;
+            } else {
+                document.getElementById('email-error').style.display = 'none';
+            }
+
+            if (isValid) startQuiz();
+        }
+
+        function shuffle(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        function startQuiz() {
+            const name = document.getElementById('user-name').value;
+            const inst = document.getElementById('user-inst').value;
+            const cls = document.getElementById('user-class').value;
+
+            document.getElementById('display-name').innerText = name;
+            document.getElementById('display-info').innerText = `${inst} | শ্রেণি: ${cls}`;
+            document.getElementById('avatar-init').innerText = name.charAt(0).toUpperCase();
+            
+            document.getElementById('intro-screen').classList.add('hidden');
+            document.getElementById('quiz-screen').classList.remove('hidden');
+
+            quizData = shuffle([...allQuestions]).slice(0, 50);
+            renderQuestions();
+            
+            isActive = true;
+            startTime = new Date();
+            startTimer();
+            
+            window.addEventListener('blur', triggerCheat);
+        }
+
+        function renderQuestions() {
+            const container = document.getElementById('questions-container');
+            container.innerHTML = quizData.map((item, index) => {
+                const options = [
+                    { id: 'a', text: item.a }, { id: 'b', text: item.b },
+                    { id: 'c', text: item.c }, { id: 'd', text: item.d }
+                ];
+                const shuffledOptions = shuffle([...options]);
+
+                return `
+                    <div class="question-block glass-card p-6 border-l-4 border-blue-600 shadow-xl">
+                        <p class="text-xl mb-6 font-medium leading-relaxed">${index + 1}. ${item.q}</p>
+                        <div class="grid grid-cols-1 gap-3">
+                            ${shuffledOptions.map(opt => `
+                                <label class="relative flex items-center cursor-pointer">
+                                    <input type="radio" name="q${index}" value="${opt.id}" class="hidden peer" required>
+                                    <div class="option-card w-full p-4 rounded-xl option-content peer-checked:bg-blue-600/30 peer-checked:border-blue-500 border border-white/5 hover:bg-white/5 transition-all">
+                                        <span class="text-gray-200">${opt.text}</span>
+                                    </div>
+                                </label>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function startTimer() {
+            timer = setInterval(() => {
+                timeLeft--;
+                const minutes = Math.floor(timeLeft / 60);
+                const seconds = timeLeft % 60;
+                document.getElementById('timer').innerText = 
+                    `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+
+                if (timeLeft <= 0) {
+                    clearInterval(timer);
+                    submitQuiz();
+                }
+            }, 1000);
+        }
+
+        function triggerCheat() {
+            if (!isActive) return;
+            isActive = false;
+            clearInterval(timer);
+            document.getElementById('cheat-overlay').style.display = 'flex';
+            submitQuiz(true);
+        }
+
+        async function submitQuiz(cheated = false) {
+            if (!isActive && !cheated) return;
+            isActive = false;
+            clearInterval(timer);
+
+            const form = document.getElementById('quiz-form');
+            const formData = new FormData(form);
+            let score = 0;
+
+            quizData.forEach((item, index) => {
+                const answer = formData.get(`q${index}`);
+                if (answer === item.correct) score++;
+            });
+
+            const timeSpent = Math.floor((new Date() - startTime) / 1000);
+            const minutesUsed = Math.floor(timeSpent / 60);
+            const secondsUsed = timeSpent % 60;
+            const timeString = `${minutesUsed}m ${secondsUsed}s`;
+
+            const name = document.getElementById('user-name').value;
+            const inst = document.getElementById('user-inst').value;
+            const cls = document.getElementById('user-class').value;
+            const wa = document.getElementById('user-wa').value;
+            const email = document.getElementById('user-email').value;
+
+            // Prepare result data for Web3Forms Dashboard
+            const emailData = {
+                access_key: "6643cbde-8097-4e6b-ac06-8ab73cd89fo3",
+                subject: "Quiz Submission: " + name,
+                Participant_Name: name,
+                Institution: inst,
+                Class: cls,
+                WhatsApp: wa,
+                Email: email,
+                Total_Score: `${score} out of 50`,
+                Duration: timeString,
+                Exam_Status: cheated ? "CHEATED (Tab Switch)" : "Valid Submission"
+            };
+
+            // Switch to final screen (No marks shown)
+            document.getElementById('quiz-screen').classList.add('hidden');
+            if (!cheated) {
+                document.getElementById('result-screen').classList.remove('hidden');
+            }
+
+            try {
+                await fetch("https://api.web3forms.com/submit", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(emailData)
+                });
+            } catch (err) {
+                console.log("Network error but submission was attempted.");
+            }
+        }
+
+        document.getElementById('quiz-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            submitQuiz();
+        });
+
+        document.addEventListener('contextmenu', e => e.preventDefault());
+    </script>
+</body>
+</html>

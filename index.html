@@ -3,399 +3,513 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Islamic Quiz Challenge</title>
+    <title>Secure Islamic Quiz Platform</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @font-face {
-            font-family: 'iOS Bangla';
+            font-family: 'iOSBangla';
             src: url('iOS Bangla Font.ttf') format('truetype');
         }
 
         body {
-            font-family: 'iOS Bangla', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #0a0a0a;
-            color: #ffffff;
+            font-family: 'iOSBangla', 'SolaimanLipi', sans-serif;
+            background-color: #000000;
+            color: #d1d1d1;
             user-select: none;
-            overflow-x: hidden;
+            -webkit-tap-highlight-color: transparent;
         }
 
         .glass-card {
-            background: rgba(255, 255, 255, 0.03);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            background: #0f0f0f;
+            border: 1px solid #222;
             border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.9);
+        }
+
+        .input-box {
+            background: #151515;
+            border: 1px solid #333;
+            color: #fff;
+            padding: 12px;
+            border-radius: 10px;
+            width: 100%;
+            transition: 0.3s;
+        }
+
+        .input-box:focus {
+            border-color: #fdbb2d;
+            outline: none;
+            background: #1a1a1a;
         }
 
         .option-card {
-            transition: all 0.3s ease;
+            display: block;
+            background: #111;
+            border: 1px solid #222;
+            padding: 12px 15px;
+            margin-bottom: 8px;
+            border-radius: 8px;
             cursor: pointer;
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: 0.2s;
         }
 
-        .option-card:hover {
-            background: rgba(255, 255, 255, 0.1);
-            border-color: #3b82f6;
+        .option-card:hover { background: #1a1a1a; }
+
+        input[type="radio"]:checked + .option-card {
+            border-color: #fdbb2d;
+            background: rgba(253, 187, 45, 0.1);
+            color: #fdbb2d;
         }
 
-        input:checked + .option-content {
-            background: #1e40af;
-            border-color: #3b82f6;
-        }
-
-        select option {
-            background-color: #1a1a1a;
-            color: white;
-        }
-
-        #timer-container {
+        .timer-bar {
             position: sticky;
             top: 0;
-            z-index: 50;
-            background: rgba(10, 10, 10, 0.9);
+            z-index: 100;
+            background: rgba(0,0,0,0.8);
             backdrop-filter: blur(10px);
+            border-bottom: 1px solid #333;
         }
 
-        #cheat-overlay {
+        #cheat-screen {
             display: none;
             position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
+            inset: 0;
             background: #000;
-            z-index: 1000;
-            justify-content: center;
+            z-index: 9999;
+            flex-direction: column;
             align-items: center;
+            justify-content: center;
             text-align: center;
-        }
-
-        .error-text {
-            color: #ef4444;
-            font-size: 0.75rem;
-            margin-top: 4px;
-            display: none;
         }
     </style>
 </head>
-<body class="min-h-screen p-4 md:p-8">
+<body>
 
-    <!-- Cheat Detection Overlay -->
-    <div id="cheat-overlay">
-        <div class="p-8">
-            <h1 class="text-4xl font-bold text-red-500 mb-4">Caught Red Handed!</h1>
-            <p class="text-xl text-gray-300">Sorry but you caught red handed while cheating. Your exam has been terminated.</p>
-        </div>
+    <!-- Cheat Detection Screen -->
+    <div id="cheat-screen">
+        <h1 class="text-5xl font-bold text-red-600 mb-4">ধরা পড়েছেন!</h1>
+        <p class="text-xl text-gray-400 px-6">আপনি পরীক্ষার বাইরে যাওয়ার চেষ্টা করেছেন। <br> আপনার কুইজটি বাতিল করে রিপোর্ট পাঠানো হয়েছে।</p>
     </div>
 
-    <!-- Intro Form -->
-    <div id="intro-screen" class="max-w-md mx-auto mt-10 glass-card p-8 shadow-2xl">
-        <h2 class="text-3xl font-bold mb-6 text-center text-blue-400">কুইজ রেজিস্ট্রেশন</h2>
-        <form id="reg-form" onsubmit="event.preventDefault(); validateAndStart();" class="space-y-4">
-            <div>
-                <label class="block text-sm text-gray-400 mb-1">আপনার নাম</label>
-                <input type="text" id="user-name" required class="w-full bg-transparent border border-gray-700 rounded-lg p-3 focus:outline-none focus:border-blue-500" placeholder="সম্পূর্ণ নাম">
-            </div>
-            <div>
-                <label class="block text-sm text-gray-400 mb-1">শিক্ষা প্রতিষ্ঠানের নাম</label>
-                <input type="text" id="user-inst" required class="w-full bg-transparent border border-gray-700 rounded-lg p-3 focus:outline-none focus:border-blue-500" placeholder="প্রতিষ্ঠানের নাম">
-            </div>
-            <div>
-                <label class="block text-sm text-gray-400 mb-1">শ্রেণি/ক্লাস</label>
-                <select id="user-class" required class="w-full bg-transparent border border-gray-700 rounded-lg p-3 focus:outline-none focus:border-blue-500 appearance-none">
-                    <option value="" disabled selected>শ্রেণি নির্বাচন করুন</option>
-                    <option value="6">৬ষ্ঠ শ্রেণি</option>
-                    <option value="7">৭ম শ্রেণি</option>
-                    <option value="8">৮ম শ্রেণি</option>
-                    <option value="9">৯ম শ্রেণি</option>
-                    <option value="10">১০ম শ্রেণি</option>
-                    <option value="11">১১শ শ্রেণি</option>
-                    <option value="12">১২শ শ্রেণি</option>
-                    <option value="IV">অনার্স / মাস্টার্স</option>
-                </select>
-            </div>
-            <div>
-                <label class="block text-sm text-gray-400 mb-1">হোয়াটসঅ্যাপ নম্বর (১১ ডিজিট)</label>
-                <input type="tel" id="user-wa" required pattern="[0-9]{11}" class="w-full bg-transparent border border-gray-700 rounded-lg p-3 focus:outline-none focus:border-blue-500" placeholder="017XXXXXXXX">
-                <p id="wa-error" class="error-text">সঠিক ১১ ডিজিটের নম্বর দিন</p>
-            </div>
-            <div>
-                <label class="block text-sm text-gray-400 mb-1">ইমেইল ঠিকানা</label>
-                <input type="email" id="user-email" required class="w-full bg-transparent border border-gray-700 rounded-lg p-3 focus:outline-none focus:border-blue-500" placeholder="example@mail.com">
-                <p id="email-error" class="error-text">একটি সঠিক ইমেইল অ্যাড্রেস দিন</p>
-            </div>
-            
-            <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-lg transition mt-4 transform active:scale-95">
-                পরীক্ষা শুরু করুন
-            </button>
-        </form>
-        <p class="mt-4 text-xs text-gray-500 text-center">সময়: ৩০ মিনিট | প্রশ্ন: ৫০ (রেন্ডম)</p>
-    </div>
-
-    <!-- Quiz Area -->
-    <div id="quiz-screen" class="hidden max-w-3xl mx-auto">
-        <div id="timer-container" class="flex justify-between items-center py-4 mb-6 border-b border-gray-800 px-4 rounded-b-xl">
-            <div class="flex items-center gap-3">
-                <div class="h-10 w-10 bg-blue-600 rounded-full flex items-center justify-center font-bold text-xl" id="avatar-init">?</div>
+    <!-- 1. Registration Screen -->
+    <div id="reg-screen" class="min-h-screen flex items-center justify-center p-4">
+        <div class="glass-card w-full max-w-md p-8">
+            <h1 class="text-2xl font-bold text-[#fdbb2d] mb-6 text-center">তথ্য প্রদান করুন</h1>
+            <form id="reg-form" onsubmit="validateAndStart(event)" class="space-y-4">
                 <div>
-                    <h3 id="display-name" class="text-blue-400 font-bold leading-none mb-1"></h3>
-                    <p id="display-info" class="text-xs text-gray-500"></p>
+                    <label class="text-xs text-gray-500 ml-1">আপনার নাম</label>
+                    <input type="text" id="u-name" required class="input-box" placeholder="নাম লিখুন">
                 </div>
-            </div>
-            <div class="text-right">
-                <span class="text-xs text-gray-400 block uppercase tracking-widest">Time Remaining</span>
-                <div id="timer" class="text-2xl font-mono font-bold text-red-500">30:00</div>
-            </div>
+                <div>
+                    <label class="text-xs text-gray-500 ml-1">প্রতিষ্ঠানের নাম</label>
+                    <input type="text" id="u-inst" required class="input-box" placeholder="স্কুল/কলেজ/মাদ্রাসা">
+                </div>
+                <div>
+                    <label class="text-xs text-gray-500 ml-1">শ্রেণী</label>
+                    <select id="u-class" required class="input-box">
+                        <option value="">নির্বাচন করুন</option>
+                        <option value="৬ষ্ঠ">৬ষ্ঠ</option>
+                        <option value="৭ম">৭ম</option>
+                        <option value="৮ম">৮ম</option>
+                        <option value="৯ম">৯ম</option>
+                        <option value="১০ম">১০ম</option>
+                        <option value="একাদশ">একাদশ</option>
+                        <option value="দ্বাদশ">দ্বাদশ</option>
+                        <option value="অন্যান্য">অন্যান্য</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="text-xs text-gray-500 ml-1">হোয়াটসঅ্যাপ/ফোন নম্বর (১১ ডিজিট)</label>
+                    <input type="tel" id="u-phone" required 
+                           pattern="0[0-9]{10}" 
+                           title="অবশ্যই ০ দিয়ে শুরু এবং ১১ ডিজিট হতে হবে" 
+                           class="input-box" 
+                           placeholder="01XXXXXXXXX">
+                </div>
+                <div>
+                    <label class="text-xs text-gray-500 ml-1">ইমেইল ঠিকানা</label>
+                    <input type="email" id="u-email" required class="input-box" placeholder="example@mail.com">
+                </div>
+                <button type="submit" class="w-full bg-[#fdbb2d] text-black font-bold py-3 rounded-lg hover:scale-[1.02] transition-transform mt-4">
+                    কুইজ শুরু করুন
+                </button>
+            </form>
         </div>
-
-        <form id="quiz-form">
-            <div id="questions-container" class="space-y-8">
-                <!-- Questions injected by JS -->
-            </div>
-
-            <button type="submit" class="my-12 w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-xl transition shadow-lg transform active:scale-95">
-                ফাইনাল সাবমিট
-            </button>
-        </form>
     </div>
 
-    <!-- Final Message Screen -->
-    <div id="result-screen" class="hidden max-w-md mx-auto mt-20 glass-card p-10 text-center">
-        <div class="mb-6 text-green-500 scale-125">
-            <svg class="w-20 h-20 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+    <!-- 2. Quiz Screen -->
+    <div id="quiz-screen" class="hidden">
+        <div class="timer-bar p-4 px-6 flex justify-between items-center">
+            <div class="text-[#fdbb2d] font-bold text-xl" id="timer">30:00</div>
+            <div class="text-xs text-gray-500" id="live-user"></div>
         </div>
-        <h2 class="text-3xl font-bold mb-4 text-blue-400">জাজাকাল্লাহ!</h2>
-        <p class="text-xl text-gray-300 leading-relaxed mb-6">
-            আপনার সময়ের জন্য অসংখ্য ধন্যবাদ। আপনার উত্তরপত্রটি সফলভাবে জমা হয়েছে।
-        </p>
-        <div class="w-16 h-1 bg-blue-600 mx-auto rounded-full mb-6"></div>
-        <p class="text-sm text-gray-500 italic">ফলাফল যথাসময়ে আপনার সাথে শেয়ার করা হবে।</p>
+
+        <div class="max-w-3xl mx-auto p-4 py-10">
+            <form id="quiz-form" onsubmit="finalSubmit(event)">
+                <div id="questions-area" class="space-y-10"></div>
+                <button type="submit" class="w-full bg-green-600 text-white font-bold py-4 rounded-xl mt-12 mb-20 hover:bg-green-700 transition-all">
+                    ফাইনাল সাবমিট
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- 3. Final Screen -->
+    <div id="result-screen" class="hidden min-h-screen flex items-center justify-center p-4">
+        <div class="glass-card w-full max-w-sm p-10 text-center">
+            <div class="text-green-500 text-6xl mb-4">✓</div>
+            <h2 class="text-2xl font-bold mb-2">সাবমিট হয়েছে!</h2>
+            <p class="text-gray-400 mb-6 text-sm">আপনার ফলাফল ইমেলের মাধ্যমে সংরক্ষিত হয়েছে।</p>
+            <div class="bg-black p-6 rounded-2xl border border-gray-800">
+                <p class="text-gray-500 text-xs mb-1">প্রাপ্ত নম্বর</p>
+                <div class="text-4xl font-bold text-[#fdbb2d]"><span id="final-score">0</span> / 50</div>
+            </div>
+        </div>
     </div>
 
     <script>
-        const allQuestions = [
-            { q: "রমজান মাস কত নম্বর হিজরি মাস?", a: "৭ম", b: "৮ম", c: "৯ম", d: "১০ম", correct: "c" },
-            { q: "রমজান মাসে কোন বই নাযিল হয়?", a: "তাওরাত", b: "যবুর", c: "ইঞ্জিল", d: "কুরআন", correct: "d" },
-            { q: "রমজান মাসে মুসলমানরা কী রাখে?", a: "হজ", b: "রোজা", c: "যাকাত", d: "কুরবানি", correct: "b" },
-            { q: "রোজা রাখার নিয়ত কখন করা হয়?", a: "রাতে", b: "দুপুরে", c: "বিকেলে", d: "সন্ধ্যায়", correct: "a" },
-            { q: "সেহরি খাওয়া হয় কখন?", a: "বিকেলে", b: "রাতে", c: "ফজরের আগে", d: "মাগরিবের পরে", correct: "c" },
-            { q: "ইফতার করা হয় কখন?", a: "ফজরের সময়", b: "যোহরের সময়", c: "আসরের সময়", d: "মাগরিবের সময়", correct: "d" },
-            { q: "রমজানের সবচেয়ে মর্যাদাপূর্ণ রাত কোনটি?", a: "শবে বরাত", b: "শবে কদর", c: "শবে মেরাজ", d: "জুমার রাত", correct: "b" },
-            { q: "রোজা ফরজ হয়েছে কোন বছরে?", a: "১ম হিজরি", b: "২য় হিজরি", c: "৩য় হিজরি", d: "৪র্থ হিজরি", correct: "b" },
-            { q: "রোজা রাখলে কী পাওয়া যায়?", a: "গুনাহ", b: "শাস্তি", c: "সওয়াব", d: "ক্ষতি", correct: "c" },
-            { q: "রমজান কত দিনের মাস?", a: "২০", b: "২৫", c: "২৯ বা ৩০", d: "৩৫", correct: "c" },
-            { q: "রোজা ভাঙা হয় কী দিয়ে?", a: "ভাত", b: "পানি", c: "খেজুর", d: "মাংস", correct: "c" },
-            { q: "রোজা ইসলামের কত নম্বর স্তম্ভ?", a: "১ম", b: "২য়", c: "৩য়", d: "৪র্থ", correct: "d" },
-            { q: "তারাবিহ নামাজ পড়া হয় কোন মাসে?", a: "শাবান", b: "রমজান", c: "জিলহজ", d: "মহররম", correct: "b" },
-            { q: "তারাবিহ নামাজ কত রাকাত পড়া হয়?", a: "২", b: "৪", c: "৮ বা ২০", d: "৩০", correct: "c" },
-            { q: "রোজা রাখার আরবি শব্দ কী?", a: "সালাত", b: "সাউম", c: "যাকাত", d: "হজ", correct: "b" },
-            { q: "রোজা রাখলে কী নিয়ন্ত্রণ করা শিখি?", a: "রাগ", b: "লোভ", c: "খাওয়া-দাওয়া", d: "সবগুলো", correct: "d" },
-            { q: "ইফতারের সময় কোন দোয়া পড়া হয়?", a: "খাবারের দোয়া", b: "রোজা ভাঙার দোয়া", c: "ঘুমের দোয়া", d: "সফরের দোয়া", correct: "b" },
-            { q: "রমজানের পরে কোন ঈদ আসে?", a: "ঈদুল আজহা", b: "ঈদুল ফিতর", c: "মিলাদ", d: "শবে বরাত", correct: "b" },
-            { q: "ফিতরা দেওয়া হয় কোন ঈদের আগে?", a: "ঈদুল আজহা", b: "ঈদুল ফিতর", c: "মিলাদ", d: "শবে বরাত", correct: "b" },
-            { q: "রমজান মাসে বেশি কী করা উচিত?", a: "খেলা", b: "ঘুম", c: "ইবাদত", d: "ভ্রমণ", correct: "c" },
-            { q: "রোজা শুরু হয় কোন আজান দিয়ে?", a: "ফজর", b: "যোহর", c: "আসর", d: "মাগরিব", correct: "a" },
-            { q: "রোজা ভাঙে কোন আজানে?", a: "ফজর", b: "যোহর", c: "আসর", d: "মাগরিব", correct: "d" },
-            { q: "লাইলাতুল কদর কোন দশকে খোঁজা হয়?", a: "প্রথম", b: "দ্বিতীয়", c: "শেষ", d: "মাঝামাঝি", correct: "c" },
-            { q: "রমজানে কোন নামাজ জামাতে বেশি পড়া হয়?", a: "তাহাজ্জুদ", b: "তারাবিহ", c: "ইশরাক", d: "চাশত", correct: "b" },
-            { q: "রোজা কার উপর ফরজ?", a: "ছোট শিশু", b: "অসুস্থ", c: "প্রাপ্তবয়স্ক মুসলিম", d: "ভ্রমণকারী", correct: "c" },
-            { q: "রমজান মাস রহমতের মাস বলা হয় কেন?", a: "বেশি খাবার", b: "বেশি সওয়াব", c: "বেশি ঘুম", d: "বেশি কাজ", correct: "b" },
-            { q: "রোজা রেখে মিথ্যা বললে কী হয়?", a: "সওয়াব বাড়ে", b: "গুনাহ হয়", c: "রোজা মজবুত হয়", d: "কিছুই না", correct: "b" },
-            { q: "সেহরি খাওয়া কী?", a: "ফরজ", b: "ওয়াজিব", c: "সুন্নত", d: "হারাম", correct: "c" },
-            { q: "রমজানে কুরআন খতম করা কী কাজ?", a: "ভালো কাজ", b: "খারাপ কাজ", c: "খেলাধুলা", d: "নিষেধ", correct: "a" },
-            { q: "রোজা রাখলে কষ্ট সহ্য করার শিক্ষা হয় কী?", a: "ধৈর্য", b: "রাগ", c: "অলসতা", d: "ভয়", correct: "a" },
-            { q: "রমজান মাসে শয়তানকে কী করা হয়?", a: "মুক্ত", b: "শক্তিশালী", c: "বন্দি", d: "রাজা", correct: "c" },
-            { q: "রোজা রেখে ঝগড়া করা উচিত কি?", a: "হ্যাঁ", b: "না", c: "মাঝে মাঝে", d: "সব সময়", correct: "b" },
-            { q: "তারাবিহ নামাজ পড়া হয় কোন ওয়াক্তের পর?", a: "মাগরিব", b: "ইশা", c: "ফজর", d: "যোহর", correct: "b" },
-            { q: "রমজানে দান করলে কী হয়?", a: "গুনাহ", b: "ক্ষতি", c: "সওয়াব", d: "সমস্যা", correct: "c" },
-            { q: "রোজা রেখে গীবত করা কী?", a: "ভালো", b: "নিষেধ", c: "ফরজ", d: "সুন্নত", correct: "b" },
-            { q: "রমজান মাসের শেষ দশ দিন কী বলা হয়?", a: "রহমত", b: "মাগফিরাত", c: "নাজাত", d: "শাস্তি", correct: "c" },
-            { q: "ইফতারের সময় আগে কী করা ভালো?", a: "নামাজ", b: "দোয়া", c: "ঘুম", d: "খেলা", correct: "b" },
-            { q: "রোজা ইসলামের কতটি স্তম্ভের একটি?", a: "৩", b: "৪", c: "৫", d: "৬", correct: "c" },
-            { q: "রমজানে বেশি কোন কাজ করা উচিত?", a: "কুরআন তিলাওয়াত", b: "সিনেমা", c: "ঝগড়া", d: "আড্ডা", correct: "a" },
-            { q: "রোজা ভাঙলে কী করতে হয়?", a: "হাসা", b: "কাজা রাখা", c: "ঘুমানো", d: "খেলা", correct: "b" },
-            { q: "রমজানে বেশি কী পড়া হয়?", a: "গল্পের বই", b: "কুরআন", c: "পত্রিকা", d: "উপন্যাস", correct: "b" },
-            { q: "রোজা রাখার উদ্দেশ্য কী?", a: "তাকওয়া অর্জন", b: "মোটা হওয়া", c: "ঘুমানো", d: "খেলাধুলা", correct: "a" },
-            { q: "লাইলাতুল কদর হাজার কত মাসের চেয়ে উত্তম?", a: "১০", b: "৫০", c: "১০০", d: "১০০০", correct: "d" },
-            { q: "রমজানে বেশি কোন দোয়া করা উচিত?", a: "দুনিয়ার", b: "আখিরাতের", c: "সব দোয়া", d: "কোনো দোয়া না", correct: "c" },
-            { q: "রোজা রেখে চুরি করা কী?", a: "সওয়াব", b: "গুনাহ", c: "ফরজ", d: "সুন্নত", correct: "b" },
-            { q: "রমজান মাসে জাহান্নামের দরজা কী হয়?", a: "খোলা", b: "বন্ধ", c: "বড়", d: "ছোট", correct: "b" },
-            { q: "রোজা রেখে নামাজ না পড়া ঠিক কি?", a: "হ্যাঁ", b: "না", c: "কখনো কখনো", d: "সমস্যা নেই", correct: "b" },
-            { q: "রমজানে বেশি কী চাওয়া উচিত?", a: "টাকা", b: "ক্ষমা", c: "খেলনা", d: "পোশাক", correct: "b" },
-            { q: "রোজা কার জন্য সহজ নয়?", a: "ধৈর্যশীল", b: "অলস", c: "অসুস্থ", d: "সৎ", correct: "c" },
-            { q: "রমজান মাস মুসলমানদের জন্য কী?", a: "শাস্তির মাস", b: "রহমতের মাস", c: "খেলার মাস", d: "ঘুমের মাস", correct: "b" }
-        ];
+        // আপনার Web3Forms Access Key এখানে বসান
+        const apiKey = "6643cbde-8097-4e6b-ac06-8ab73cd89f03"; 
+        
+        let countdown = 30 * 60;
+        let timerTask;
+        let testRunning = false;
+        let selectedSet = [];
 
-        let quizData = [];
-        let timer;
-        let timeLeft = 30 * 60;
-        let isActive = false;
-        let startTime;
+        // এই db ভেরিয়েবলের ভেতর আপনার সব প্রশ্ন বসবে
+        const db = [
+            {q: "রমজান মাস কত নম্বর হিজরি মাস?", options: ["৭ম", "৮ম", "৯ম", "১০ম"], correct: "৯ম"},
+    {q: "রমজান মাসে কোন বই নাযিল হয়?", options: ["তাওরাত", "যবুর", "ইঞ্জিল", "কুরআন"], correct: "কুরআন"},
+    {q: "রমজান মাসে মুসলমানরা কী রাখে?", options: ["হজ", "রোজা", "যাকাত", "কুরবানি"], correct: "রোজা"},
+    {q: "রোজা রাখার নিয়ত কখন করা হয়?", options: ["রাতে", "দুপুরে", "বিকেলে", "সন্ধ্যায়"], correct: "রাতে"},
+    {q: "সেহরি খাওয়া হয় কখন?", options: ["বিকেলে", "রাতে", "ফজরের আগে", "মাগরিবের পরে"], correct: "ফজরের আগে"},
+    {q: "ইফতার করা হয় কখন?", options: ["ফজরের সময়", "যোহরের সময়", "আসরের সময়", "মাগরিবের সময়"], correct: "মাগরিবের সময়"},
+    {q: "রমজানের সবচেয়ে মর্যাদাপূর্ণ রাত কোনটি?", options: ["শবে বরাত", "শবে কদর", "শবে মেরাজ", "জুমার রাত"], correct: "শবে কদর"},
+    {q: "রোজা ফরজ হয়েছে কোন বছরে?", options: ["১ম হিজরি", "২য় হিজরি", "৩য় হিজরি", "৪র্থ হিজরি"], correct: "২য় হিজরি"},
+    {q: "রোজা রাখলে কী পাওয়া যায়?", options: ["গুনাহ", "শাস্তি", "সওয়াব", "ক্ষতি"], correct: "সওয়াব"},
+    {q: "রমজান কত দিনের মাস?", options: ["২০", "২৫", "২৯ বা ৩০", "৩৫"], correct: "২৯ বা ৩০"},
+    {q: "রোজা ভাঙা হয় কী দিয়ে?", options: ["ভাত", "পানি", "খেজুর", "মাংস"], correct: "খেজুর"},
+    {q: "রোজা ইসলামের কত নম্বর স্তম্ভ?", options: ["১ম", "২য়", "৩য়", "৪র্থ"], correct: "৪র্থ"},
+    {q: "তারাবিহ নামাজ পড়া হয় কোন মাসে?", options: ["শাবান", "রমজান", "জিলহজ", "মহররম"], correct: "রমজান"},
+    {q: "তারাবিহ নামাজ কত রাকাত পড়া হয়?", options: ["২", "৪", "৮ বা ২০", "৩০"], correct: "৮ বা ২০"},
+    {q: "রোজা রাখার আরবি শব্দ কী?", options: ["সালাত", "সাওম", "যাকাত", "হজ"], correct: "সাওম"},
+    {q: "রোজা রাখলে কী নিয়ন্ত্রণ করা শিখি?", options: ["রাগ", "লোভ", "খাওয়া-দাওয়া", "সবগুলো"], correct: "সবগুলো"},
+    {q: "ইফতারের সময় কোন দোয়া পড়া হয়?", options: ["খাবারের দোয়া", "রোজা ভাঙার দোয়া", "ঘুমের দোয়া", "সফরের দোয়া"], correct: "রোজা ভাঙার দোয়া"},
+    {q: "রমজানের পরে কোন ঈদ আসে?", options: ["ঈদুল আজহা", "ঈদুল ফিতর", "মিলাদ", "শবে বরাত"], correct: "ঈদুল ফিতর"},
+    {q: "ফিতরা দেওয়া হয় কোন ঈদের আগে?", options: ["ঈদুল আজহা", "ঈদুল ফিতর", "মিলাদ", "শবে বরাত"], correct: "ঈদুল ফিতর"},
+    {q: "রমজান মাসে বেশি কী করা উচিত?", options: ["খেলা", "ঘুম", "ইবাদত", "ভ্রমণ"], correct: "ইবাদত"},
+    {q: "রোজা শুরু হয় কোন আজান দিয়ে?", options: ["ফজর", "যোহর", "আসর", "মাগরিব"], correct: "ফজর"},
+    {q: "রোজা ভাঙে কোন আজানে?", options: ["ফজর", "যোহর", "আসর", "মাগরিব"], correct: "মাগরিব"},
+    {q: "লাইলাতুল কদর কোন দশকে খোঁজা হয়?", options: ["প্রথম", "দ্বিতীয়", "শেষ", "মাঝামাঝি"], correct: "শেষ"},
+    {q: "রমজানে কোন নামাজ জামাতে বেশি পড়া হয়?", options: ["তাহাজ্জুদ", "তারাবিহ", "ইশরাক", "চাশত"], correct: "তারাবিহ"},
+    {q: "রোজা কার উপর ফরজ?", options: ["ছোট শিশু", "অসুস্থ", "প্রাপ্তবয়স্ক মুসলিম", "ভ্রমণকারী"], correct: "প্রাপ্তবয়স্ক মুসলিম"},
+    {q: "রমজান মাস রহমতের মাস বলা হয় কেন?", options: ["বেশি খাবার", "বেশি সওয়াব", "বেশি ঘুম", "বেশি কাজ"], correct: "বেশি সওয়াব"},
+    {q: "রোজা রেখে মিথ্যা বললে কী হয়?", options: ["সওয়াব বাড়ে", "গুনাহ হয়", "রোজা মজবুত হয়", "কিছুই না"], correct: "গুনাহ হয়"},
+    {q: "সেহরি খাওয়া কী?", options: ["ফরজ", "ওয়াজিব", "সুন্নত", "হারাম"], correct: "সুন্নত"},
+    {q: "রমজানে কুরআন খতম করা কী কাজ?", options: ["ভালো কাজ", "খারাপ কাজ", "খেলাধুলা", "নিষেধ"], correct: "ভালো কাজ"},
+    {q: "রোজা রাখলে কষ্ট সহ্য করার শিক্ষা হয় কী?", options: ["ধৈর্য", "রাগ", "অলসতা", "ভয়"], correct: "ধৈর্য"},
+    {q: "রমজান মাসে শয়তানকে কী করা হয়?", options: ["মুক্ত", "শক্তিশালী", "বন্দি", "রাজা"], correct: "বন্দি"},
+    {q: "রোজা রেখে ঝগড়া করা উচিত কি?", options: ["হ্যাঁ", "না", "মাঝে মাঝে", "সব সময়"], correct: "না"},
+    {q: "তারাবিহ নামাজ পড়া হয় কোন ওয়াক্তের পর?", options: ["মাগরিব", "ইশা", "ফজর", "যোহর"], correct: "ইশা"},
+    {q: "রমজানে দান করলে কী হয়?", options: ["গুনাহ", "ক্ষতি", "সওয়াব", "সমস্যা"], correct: "সওয়াব"},
+    {q: "রোজা রেখে গীবত করা কী?", options: ["ভালো", "নিষেধ", "ফরজ", "সুন্নত"], correct: "নিষেধ"},
+    {q: "রমজান মাসের শেষ দশ দিন কী বলা হয়?", options: ["রহমত", "মাগফিরাত", "নাজাত", "শাস্তি"], correct: "নাজাত"},
+    {q: "ইফতারের সময় আগে কী করা ভালো?", options: ["নামাজ", "দোয়া", "ঘুম", "খেলা"], correct: "দোয়া"},
+    {q: "রোজা ইসলামের কতটি স্তম্ভের একটি?", options: ["৩", "৪", "৫", "৬"], correct: "৫"},
+    {q: "রমজানে বেশি কোন কাজ করা উচিত?", options: ["কুরআন তিলাওয়াত", "সিনেমা", "ঝগড়া", "আড্ডা"], correct: "কুরআন তিলাওয়াত"},
+    {q: "রোজা ভাঙলে কী করতে হয়?", options: ["হাসা", "কাজা রাখা", "ঘুমানো", "খেলা"], correct: "কাজা রাখা"},
+    {q: "রমজানে বেশি কী পড়া হয়?", options: ["গল্পের বই", "কুরআন", "পত্রিকা", "উপন্যাস"], correct: "কুরআন"},
+    {q: "রোজা রাখার উদ্দেশ্য কী?", options: ["তাকওয়া অর্জন", "মোটা হওয়া", "ঘুমানো", "খেলাধুলা"], correct: "তাকওয়া অর্জন"},
+    {q: "লাইলাতুল কদর হাজার কত মাসের চেয়ে উত্তম?", options: ["১০", "৫০", "১০০", "১০০০"], correct: "১০০০"},
+    {q: "রমজানে বেশি কোন দোয়া করা উচিত?", options: ["দুনিয়ার", "আখিরাতের", "সব দোয়া", "কোনো দোয়া না"], correct: "সব দোয়া"},
+    {q: "রোজা রেখে চুরি করা কী?", options: ["সওয়াব", "গুনাহ", "ফরজ", "সুন্নত"], correct: "গুনাহ"},
+    {q: "রমজান মাসে জাহান্নামের দরজা কী হয়?", options: ["খোলা", "বন্ধ", "বড়", "ছোট"], correct: "বন্ধ"},
+    {q: "রোজা রেখে নামাজ না পড়া ঠিক কি?", options: ["হ্যাঁ", "না", "কখনো কখনো", "সমস্যা নেই"], correct: "না"},
+    {q: "রমজানে বেশি কী চাওয়া উচিত?", options: ["টাকা", "ক্ষমা", "খেলনা", "পোশাক"], correct: "ক্ষমা"},
+    {q: "রোজা কার জন্য সহজ নয়?", options: ["ধৈর্যশীল", "অলস", "অসুস্থ", "সৎ"], correct: "অসুস্থ"},
+    {q: "রমজান মাস মুসলমানদের জন্য কী?", options: ["শাস্তির মাস", "রহমতের মাস", "খেলার মাস", "ঘুমের মাস"], correct: "রহমতের মাস"},
+    {q: "রমজান মাসের প্রথম দশ দিনকে কী বলা হয়?", options: ["নাজাত", "মাগফিরাত", "রহমত", "শাস্তি"], correct: "রহমত"},
+    {q: "রমজানের দ্বিতীয় দশ দিনকে কী বলা হয়?", options: ["রহমত", "মাগফিরাত", "নাজাত", "সুখ"], correct: "মাগফিরাত"},
+    {q: "রমজানের শেষ দশ দিনকে কী বলা হয়?", options: ["রহমত", "মাগফিরাত", "নাজাত", "আনন্দ"], correct: "নাজাত"},
+    {q: "রোজা রেখে ইচ্ছা করে খেলে কী হয়?", options: ["সওয়াব", "রোজা ভেঙে যায়", "কিছু হয় না", "পুরস্কার"], correct: "রোজা ভেঙে যায়"},
+    {q: "রমজানে কোন দান বেশি গুরুত্বপূর্ণ?", options: ["খেলনা দান", "সদকা", "ফিতরা", "কাপড় দান"], correct: "ফিতরা"},
+    {q: "ফিতরা কাদের দেওয়া হয়?", options: ["ধনীকে", "গরিবকে", "বন্ধুদের", "শিক্ষকদের"], correct: "গরিবকে"},
+    {q: "রমজানে বেশি কোন গুণ অর্জন হয়?", options: ["রাগ", "অহংকার", "তাকওয়া", "হিংসা"], correct: "তাকওয়া"},
+    {q: "সেহরি না খেলে রোজা হবে কি?", options: ["হবে না", "হবে", "অর্ধেক হবে", "জানি না"], correct: "হবে"},
+    {q: "রোজা রাখার সময় কী থেকে বিরত থাকতে হয়?", options: ["ভালো কাজ", "নামাজ", "খাওয়া-দাওয়া", "দোয়া"], correct: "খাওয়া-দাওয়া"},
+    {q: "রমজানে কোন রাতে কুরআন নাযিল হয়?", options: ["শবে কদর", "শবে বরাত", "জুমার রাত", "ঈদের রাত"], correct: "শবে কদর"},
+    {q: "তারাবিহ নামাজ পড়া কী?", options: ["ফরজ", "ওয়াজিব", "সুন্নত", "হারাম"], correct: "সুন্নত"},
+    {q: "রোজা রেখে ধূমপান করা কী?", options: ["জায়েজ", "সুন্নত", "রোজা ভেঙে যায়", "ভালো"], correct: "রোজা ভেঙে যায়"},
+    {q: "রমজান মাসে কোন দরজা খোলা হয়?", options: ["জাহান্নাম", "জান্নাত", "বাজার", "স্কুল"], correct: "জান্নাত"},
+    {q: "রোজা রাখলে আল্লাহ কী দেন?", options: ["শাস্তি", "কষ্ট", "পুরস্কার", "ভয়"], correct: "পুরস্কার"},
+    {q: "রমজানে বেশি কী পড়া উচিত?", options: ["কুরআন", "গল্প", "উপন্যাস", "চিঠি"], correct: "কুরআন"},
+    {q: "ইফতারের আগে কী করা উত্তম?", options: ["হাসি-তামাশা", "দোয়া", "ঘুম", "খেলা"], correct: "দোয়া"},
+    {q: "রোজা রাখা কার জন্য মাফ?", options: ["সুস্থ প্রাপ্তবয়স্ক", "অসুস্থ ব্যক্তি", "ধনী", "শিক্ষক"], correct: "অসুস্থ ব্যক্তি"},
+    {q: "রমজানে বেশি কোন কাজের সওয়াব?", options: ["খেলা", "আড্ডা", "ইবাদত", "ঝগড়া"], correct: "ইবাদত"},
+    {q: "লাইলাতুল কদর কোন দশ দিনে হয়?", options: ["প্রথম", "দ্বিতীয়", "শেষ", "মাঝের"], correct: "শেষ"},
+    {q: "রোজা রাখার মাধ্যমে কী শিখি?", options: ["অলসতা", "ধৈর্য", "অহংকার", "হিংসা"], correct: "ধৈর্য"},
+    {q: "রমজানে বেশি কোন নামাজ পড়া হয়?", options: ["তারাবিহ", "জানাজা", "ঈদের নামাজ", "কুসুফ"], correct: "তারাবিহ"},
+    {q: "রোজা রেখে গালাগালি করা কী?", options: ["ভালো", "নিষেধ", "ফরজ", "সুন্নত"], correct: "নিষেধ"},
+    {q: "রমজান মাস কাদের জন্য রহমত?", options: ["মুসলমানদের", "পশুদের", "গাছের", "শুধু ধনীদের"], correct: "মুসলমানদের"},
+    {q: "রোজা ভাঙলে কী আদায় করতে হয়?", options: ["কাজা", "খেলাধুলা", "বিশ্রাম", "হাসি"], correct: "কাজা"},
+    {q: "সেহরি খাওয়ার সময় শেষ হয় কখন?", options: ["সূর্য উঠলে", "ফজরের আজান", "মাগরিব", "যোহর"], correct: "ফজরের আজান"},
+    {q: "রমজানে বেশি কী করা উচিত?", options: ["দান", "ঝগড়া", "অলসতা", "খেলাধুলা"], correct: "দান"},
+    {q: "রোজা ইসলামের কোন স্তম্ভ?", options: ["প্রথম", "দ্বিতীয়", "তৃতীয়", "চতুর্থ"], correct: "চতুর্থ"},
+    {q: "রমজানে বেশি কোন কথা বলা উচিত?", options: ["মিথ্যা", "খারাপ", "ভালো", "গীবত"], correct: "ভালো"},
+    {q: "রোজা রেখে চুরি করলে কী হয়?", options: ["সওয়াব", "গুনাহ", "পুরস্কার", "সম্মান"], correct: "গুনাহ"},
+    {q: "রমজানে কাকে বেশি সাহায্য করা উচিত?", options: ["ধনীকে", "গরিবকে", "শুধু বন্ধুকে", "কাউকে না"], correct: "গরিবকে"},
+    {q: "রোজা রাখার মাধ্যমে আল্লাহর কী অর্জন হয়?", options: ["রাগ", "অসন্তোষ", "সন্তুষ্টি", "কষ্ট"], correct: "সন্তুষ্টি"},
+    {q: "রমজানে বেশি কোন কাজ থেকে দূরে থাকা উচিত?", options: ["নামাজ", "দান", "মিথ্যা", "দোয়া"], correct: "মিথ্যা"},
+    {q: "ইফতার শুরু করা ভালো কী দিয়ে?", options: ["পানি বা খেজুর", "ভাত", "মাংস", "ফল"], correct: "পানি বা খেজুর"},
+    {q: "রোজা রেখে কারো ক্ষতি করা কী?", options: ["ভালো", "সওয়াব", "গুনাহ", "সুন্নত"], correct: "গুনাহ"},
+    {q: "রমজান মাসে কোন ঈদ উদযাপন হয়?", options: ["ঈদুল আজহা", "ঈদুল ফিতর", "মিলাদ", "শবে বরাত"], correct: "ঈদুল ফিতর"},
+    {q: "রোজা রেখে বেশি ঘুমানো কী ঠিক?", options: ["হ্যাঁ", "না", "সব সময়", "বাধ্যতামূলক"], correct: "না"},
+    {q: "রমজানে কোন ইবাদত বেশি করা হয়?", options: ["কুরআন তিলাওয়াত", "খেলা", "সিনেমা", "ঝগড়া"], correct: "কুরআন তিলাওয়াত"},
+    {q: "রোজা কার উপর ফরজ নয়?", options: ["সুস্থ প্রাপ্তবয়স্ক", "শিশু", "মুসলিম", "পুরুষ"], correct: "শিশু"},
+    {q: "রমজানে বেশি কোন গুণ বাড়ে?", options: ["হিংসা", "রাগ", "সহানুভূতি", "অহংকার"], correct: "সহানুভূতি"},
+    {q: "রোজা রেখে মিথ্যা বলা কী?", options: ["সওয়াব", "গুনাহ", "ফরজ", "সুন্নত"], correct: "গুনাহ"},
+    {q: "রমজান মাসে কুরআন কত রাতে নাযিল হয়?", options: ["এক রাতে", "দুই রাতে", "তিন রাতে", "চার রাতে"], correct: "এক রাতে"},
+    {q: "রোজা রাখার সময় কোন কাজ করা ভালো?", options: ["ঝগড়া", "দোয়া", "গীবত", "মিথ্যা"], correct: "দোয়া"},
+    {q: "রমজানে বেশি কোন দান করা হয়?", options: ["ফিতরা", "সুদ", "চুরি", "ঝগড়া"], correct: "ফিতরা"},
+    {q: "রোজা রেখে কার সাথে ভালো আচরণ করা উচিত?", options: ["শুধু বন্ধু", "শুধু পরিবার", "সবার সাথে", "কারো সাথে না"], correct: "সবার সাথে"},
+    {q: "রমজানে বেশি কোন গুণ অর্জন করা উচিত?", options: ["ধৈর্য", "রাগ", "অহংকার", "হিংসা"], correct: "ধৈর্য"},
+    {q: "রোজা রেখে গীবত করলে কী হয়?", options: ["সওয়াব", "গুনাহ", "পুরস্কার", "সম্মান"], correct: "গুনাহ"},
+    {q: "রমজান মাসে কোন কাজ বেশি সওয়াবের?", options: ["ইবাদত", "খেলা", "আড্ডা", "ঝগড়া"], correct: "ইবাদত"},
+    {q: "রোজা রেখে আল্লাহর কাছে কী চাইতে হয়?", options: ["খেলনা", "ক্ষমা", "টাকা", "পোশাক"], correct: "ক্ষমা"},
+    {q: "রমজানে বেশি কোন সময় দোয়া কবুল হয়?", options: ["ইফতারের সময়", "দুপুরে", "বিকেলে", "রাতে ১২টা"], correct: "ইফতারের সময়"},
+    {q: "রমজান মাস আমাদের কী শেখায়?", options: ["ধৈর্য ও তাকওয়া", "অলসতা", "ঝগড়া", "রাগ"], correct: "ধৈর্য ও তাকওয়া"},
+    {q: "ইসলামের নবীর নাম কী?", options: ["ঈসা (আ.)", "মূসা (আ.)", "মুহাম্মদ (সা.)", "ইবরাহিম (আ.)"], correct: "মুহাম্মদ (সা.)"},
+    {q: "কুরআন কার উপর নাযিল হয়?", options: ["হযরত ঈসা (আ.)", "হযরত মুহাম্মদ (সা.)", "হযরত মূসা (আ.)", "হযরত নূহ (আ.)"], correct: "হযরত মুহাম্মদ (সা.)"},
+    {q: "কুরআন নাযিল হয় কোথায়?", options: ["মদিনা", "তায়েফ", "মক্কা", "জেরুজালেম"], correct: "মক্কা"},
+    {q: "ইসলামের প্রথম খলিফা কে ছিলেন?", options: ["হযরত উমর (রা.)", "হযরত উসমান (রা.)", "হযরত আলী (রা.)", "হযরত আবু বকর (রা.)"], correct: "হযরত আবু বকর (রা.)"},
+    {q: "ইসলামের দ্বিতীয় খলিফা কে?", options: ["হযরত উমর (রা.)", "হযরত আলী (রা.)", "হযরত উসমান (রা.)", "হযরত আবু বকর (রা.)"], correct: "হযরত উমর (রা.)"},
+    {q: "ইসলামের তৃতীয় খলিফা কে?", options: ["হযরত উমর (রা.)", "হযরত উসমান (রা.)", "হযরত আলী (রা.)", "হযরত আবু বকর (রা.)"], correct: "হযরত উসমান (রা.)"},
+    {q: "ইসলামের চতুর্থ খলিফা কে?", options: ["হযরত উমর (রা.)", "হযরত উসমান (রা.)", "হযরত আলী (রা.)", "হযরত আবু বকর (রা.)"], correct: "হযরত আলী (রা.)"},
+    {q: "ইসলাম ধর্মের পবিত্র ঘর কোথায়?", options: ["মদিনা", "মক্কা", "তায়েফ", "কায়রো"], correct: "মক্কা"},
+    {q: "কাবা শরীফ কোথায় অবস্থিত?", options: ["মদিনা", "মক্কা", "তায়েফ", "জেদ্দা"], correct: "মক্কা"},
+    {q: "হজ পালন করা হয় কোন মাসে?", options: ["রমজান", "শাবান", "জিলহজ", "মহররম"], correct: "জিলহজ"},
+    {q: "নামাজ দিনে কতবার ফরজ?", options: ["৩ বার", "৪ বার", "৫ বার", "৬ বার"], correct: "৫ বার"},
+    {q: "ফজর নামাজ কত রাকাত ফরজ?", options: ["২", "৩", "৪", "৫"], correct: "২"},
+    {q: "যোহর নামাজ কত রাকাত ফরজ?", options: ["২", "৩", "৪", "৫"], correct: "৪"},
+    {q: "আসরের নামাজ কত রাকাত ফরজ?", options: ["২", "৩", "৪", "৫"], correct: "৪"},
+    {q: "মাগরিব নামাজ কত রাকাত ফরজ?", options: ["২", "৩", "৪", "৫"], correct: "৩"},
+    {q: "ইশা নামাজ কত রাকাত ফরজ?", options: ["২", "৩", "৪", "৫"], correct: "৪"},
+    {q: "ইসলামের পবিত্র গ্রন্থ কয়টি?", options: ["২টি", "৩টি", "৪টি", "৫টি"], correct: "৪টি"},
+    {q: "তাওরাত কার উপর নাযিল হয়?", options: ["ঈসা (আ.)", "মূসা (আ.)", "দাউদ (আ.)", "ইবরাহিম (আ.)"], correct: "মূসা (আ.)"},
+    {q: "যবুর কার উপর নাযিল হয়?", options: ["ঈসা (আ.)", "মূসা (আ.)", "দাউদ (আ.)", "নূহ (আ.)"], correct: "দাউদ (আ.)"},
+    {q: "ইঞ্জিল কার উপর নাযিল হয়?", options: ["ঈসা (আ.)", "মূসা (আ.)", "দাউদ (আ.)", "আদম (আ.)"], correct: "ঈসা (আ.)"},
+    {q: "ইসলামের মোট স্তম্ভ কয়টি?", options: ["৩টি", "৪টি", "৫টি", "৬টি"], correct: "৫টি"},
+    {q: "কালিমা কী?", options: ["নামাজ", "ঈমানের কথা", "রোজা", "হজ"], correct: "ঈমানের কথা"},
+    {q: "যাকাত কী?", options: ["নামাজ", "দান", "রোজা", "হজ"], correct: "দান"},
+    {q: "কুরআনের প্রথম সূরা কোনটি?", options: ["ইখলাস", "ফাতিহা", "বাকারা", "নাস"], correct: "ফাতিহা"},
+    {q: "কুরআনের শেষ সূরা কোনটি?", options: ["ফালাক", "নাস", "ইখলাস", "কাওসার"], correct: "নাস"},
+    {q: "মুসলমানরা কোন দিকে মুখ করে নামাজ পড়ে?", options: ["পূর্ব", "পশ্চিম", "কিবলা", "উত্তর"], correct: "কিবলা"},
+    {q: "কিবলা কোন দিকে?", options: ["কাবা শরীফের দিকে", "মদিনার দিকে", "তায়েফের দিকে", "জেরুজালেমের দিকে"], correct: "কাবা শরীফের দিকে"},
+    {q: "হযরত আদম (আ.) কে ছিলেন?", options: ["ফেরেশতা", "প্রথম মানুষ", "রাজা", "নবী নন"], correct: "প্রথম মানুষ"},
+    {q: "ফেরেশতারা কী দিয়ে তৈরি?", options: ["আগুন", "মাটি", "নূর", "পানি"], correct: "নূর"},
+    {q: "জিন জাতি কী দিয়ে তৈরি?", options: ["নূর", "আগুন", "মাটি", "পানি"], correct: "আগুন"},
+    {q: "ইসলামের পবিত্র শহর কোনটি?", options: ["ঢাকা", "মক্কা", "কায়রো", "দিল্লি"], correct: "মক্কা"},
+    {q: "হিজরত মানে কী?", options: ["ভ্রমণ", "স্থান পরিবর্তন", "যুদ্ধ", "নামাজ"], correct: "স্থান পরিবর্তন"},
+    {q: "মহানবী (সা.) কোথা থেকে কোথায় হিজরত করেন?", options: ["মদিনা থেকে মক্কা", "মক্কা থেকে মদিনা", "তায়েফ থেকে মদিনা", "জেদ্দা থেকে মক্কা"], correct: "মক্কা থেকে মদিনা"},
+    {q: "ইসলামের প্রথম মসজিদ কোনটি?", options: ["মসজিদে নববী", "মসজিদুল হারাম", "মসজিদে কুবা", "বায়তুল মুকাদ্দাস"], correct: "মসজিদে কুবা"},
+    {q: "ঈদুল ফিতরের নামাজ কত রাকাত?", options: ["২", "৩", "৪", "৫"], correct: "২"},
+    {q: "ঈদুল আজহার সাথে কোন কাজ করা হয়?", options: ["রোজা", "কুরবানি", "হজ", "তারাবিহ"], correct: "কুরবানি"},
+    {q: "কুরআনে মোট কতটি সূরা আছে?", options: ["১০০", "১১০", "১১৪", "১২০"], correct: "১১৪"},
+    {q: "মহানবী (সা.) এর জন্ম কোথায়?", options: ["মদিনা", "মক্কা", "তায়েফ", "জেদ্দা"], correct: "মক্কা"},
+    {q: "মহানবী (সা.) এর জন্ম সালকে কী বলা হয়?", options: ["হিজরি সাল", "আমুল ফিল", "খিলাফত সাল", "মীলাদ সাল"], correct: "আমুল ফিল"},
+    {q: "বদর যুদ্ধ কোন মাসে হয়?", options: ["রমজান", "শাবান", "জিলহজ", "মহররম"], correct: "রমজান"},
+    {q: "মুসলমানরা সাপ্তাহিক বিশেষ দিন কোনটি?", options: ["শনিবার", "শুক্রবার", "রবিবার", "সোমবার"], correct: "শুক্রবার"},
+    {q: "জুমার নামাজ কত রাকাত ফরজ?", options: ["২", "৩", "৪", "৫"], correct: "২"},
+    {q: "আজান কে দেন?", options: ["ইমাম", "খতিব", "মুয়াজ্জিন", "খাদেম"], correct: "মুয়াজ্জিন"},
+    {q: "ইসলামে সবচেয়ে বড় পাপ কী?", options: ["চুরি", "শিরক", "মিথ্যা", "গীবত"], correct: "শিরক"},
+    {q: "শিরক মানে কী?", options: ["মিথ্যা বলা", "আল্লাহর সাথে কাউকে শরিক করা", "চুরি", "গীবত"], correct: "আল্লাহর সাথে কাউকে শরিক করা"},
+    {q: "কুরআন কত বছরে নাযিল হয়?", options: ["১০ বছর", "১৫ বছর", "২৩ বছর", "৩০ বছর"], correct: "২৩ বছর"},
+    {q: "ইসলামের শেষ নবী কে?", options: ["ঈসা (আ.)", "মূসা (আ.)", "মুহাম্মদ (সা.)", "নূহ (আ.)"], correct: "মুহাম্মদ (সা.)"},
+    {q: "জান্নাতে যেতে কী প্রয়োজন?", options: ["ভালো আমল", "টাকা", "শক্তি", "খেলা"], correct: "ভালো আমল"},
+    {q: "জাহান্নাম কাদের জন্য?", options: ["সৎ লোক", "পাপী লোক", "ধনী লোক", "শিশু"], correct: "পাপী লোক"},
+    {q: "মুসলমানদের পবিত্র দিন কোনটি?", options: ["সোমবার", "শুক্রবার", "মঙ্গলবার", "বুধবার"], correct: "শুক্রবার"},
+    {q: "রমজান মাসে কোন যুদ্ধ সংঘটিত হয়?", options: ["উহুদ", "বদর", "খন্দক", "তাবুক"], correct: "বদর"},
+    {q: "লাইলাতুল কদর কোন সূরায় উল্লেখ আছে?", options: ["সূরা ফাতিহা", "সূরা কদর", "সূরা নাস", "সূরা ইখলাস"], correct: "সূরা কদর"},
+    {q: "রমজান মাসে কোন ইবাদত বেশি করা হয়?", options: ["কুরআন তিলাওয়াত", "খেলাধুলা", "ভ্রমণ", "বাজার"], correct: "কুরআন তিলাওয়াত"},
+    {q: "রোজা রাখার উদ্দেশ্য কী অর্জন করা?", options: ["ধন-সম্পদ", "তাকওয়া", "সম্মান", "শক্তি"], correct: "তাকওয়া"},
+    {q: "রমজান মাসে জাহান্নামের দরজা কী হয়?", options: ["খোলা", "বন্ধ", "বড়", "ছোট"], correct: "বন্ধ"},
+    {q: "রমজান মাসে জান্নাতের দরজা কী হয়?", options: ["বন্ধ", "ছোট", "খোলা", "লুকানো"], correct: "খোলা"},
+    {q: "রোজা রেখে ইচ্ছাকৃত খেলে কী করতে হয়?", options: ["কিছু না", "হাসা", "কাজা ও কাফফারা", "ঘুম"], correct: "কাজা ও কাফফারা"},
+    {q: "তারাবিহ নামাজ কোন ওয়াক্তের পরে পড়া হয়?", options: ["ফজর", "যোহর", "মাগরিব", "ইশা"], correct: "ইশা"},
+    {q: "রমজানে ইতিকাফ করা হয় কোন দশ দিনে?", options: ["প্রথম", "দ্বিতীয়", "শেষ", "মাঝখানে"], correct: "শেষ"},
+    {q: "ইতিকাফ কোথায় করা হয়?", options: ["বাড়িতে", "মসজিদে", "মাঠে", "স্কুলে"], correct: "মসজিদে"},
+    {q: "রমজানে বেশি কোন দোয়া পড়া হয়?", options: ["ইস্তিগফার", "ঝগড়া", "গীবত", "হাসি"], correct: "ইস্তিগফার"},
+    {q: "রোজা ভাঙার সময় কী বলা হয়?", options: ["বিসমিল্লাহ", "দোয়া", "আজান", "তাকবির"], correct: "দোয়া"},
+    {q: "রমজান মাস কত দিনের হতে পারে?", options: ["২৮", "২৯ বা ৩০", "৩১", "৩২"], correct: "২৯ বা ৩০"},
+    {q: "রোজা ফরজ হয়েছে কাদের উপর?", options: ["শিশু", "অসুস্থ", "প্রাপ্তবয়স্ক মুসলিম", "অমুসলিম"], correct: "প্রাপ্তবয়স্ক মুসলিম"},
+    {q: "রমজানে দান করলে কী বাড়ে?", options: ["গুনাহ", "সওয়াব", "ক্ষতি", "ভয়"], correct: "সওয়াব"},
+    {q: "রোজা রেখে খারাপ কথা বললে কী হয়?", options: ["সওয়াব", "গুনাহ", "পুরস্কার", "সম্মান"], correct: "গুনাহ"},
+    {q: "লাইলাতুল কদর হাজার কত মাসের চেয়ে উত্তম?", options: ["১০০", "৫০০", "১০০০", "২০০০"], correct: "১০০০"},
+    {q: "রমজানে বেশি কোন কাজ করা ভালো?", options: ["নামাজ", "ঝগড়া", "অলসতা", "গীবত"], correct: "নামাজ"},
+    {q: "রোজা রেখে মিথ্যা বললে কী হয়?", options: ["সওয়াব", "গুনাহ", "পুরস্কার", "সম্মান"], correct: "গুনাহ"},
+    {q: "রমজান শেষে কোন ঈদ আসে?", options: ["ঈদুল আজহা", "ঈদুল ফিতর", "শবে বরাত", "মিলাদ"], correct: "ঈদুল ফিতর"},
+    {q: "ঈদুল ফিতরের আগে কোন দান দেওয়া হয়?", options: ["যাকাত", "ফিতরা", "সদকা", "কুরবানি"], correct: "ফিতরা"},
+    {q: "রমজানে শয়তানকে কী করা হয়?", options: ["মুক্ত", "শক্তিশালী", "বন্দি", "রাজা"], correct: "বন্দি"},
+    {q: "সেহরি খাওয়া কী?", options: ["ফরজ", "সুন্নত", "হারাম", "নিষেধ"], correct: "সুন্নত"},
+    {q: "ইফতার করার সময় কোন ওয়াক্ত হয়?", options: ["ফজর", "যোহর", "আসর", "মাগরিব"], correct: "মাগরিব"},
+    {q: "রমজানে বেশি কোন সূরা পড়া হয়?", options: ["কদর", "লাহাব", "নাসর", "কাওসার"], correct: "কদর"},
+    {q: "রোজা রেখে চুরি করলে কী হয়?", options: ["সওয়াব", "গুনাহ", "সম্মান", "পুরস্কার"], correct: "গুনাহ"},
+    {q: "রমজান মাসকে আর কী বলা হয়?", options: ["রহমতের মাস", "শাস্তির মাস", "খেলার মাস", "ঘুমের মাস"], correct: "রহমতের মাস"},
+    {q: "রোজা রেখে গীবত করা কী?", options: ["ভালো", "সওয়াব", "গুনাহ", "ফরজ"], correct: "গুনাহ"},
+    {q: "রমজানে বেশি কোন সময় দোয়া কবুল হয়?", options: ["ইফতার", "দুপুর", "বিকাল", "রাত ১২টা"], correct: "ইফতার"},
+    {q: "রোজা রাখলে কোন গুণ বাড়ে?", options: ["রাগ", "ধৈর্য", "হিংসা", "অহংকার"], correct: "ধৈর্য"},
+    {q: "রমজানে কোন নামাজ বেশি পড়া হয়?", options: ["তারাবিহ", "জানাজা", "কুসুফ", "ঈদ"], correct: "তারাবিহ"},
+    {q: "রোজা রেখে কার সাথে ভালো ব্যবহার করা উচিত?", options: ["শুধু বন্ধু", "শুধু পরিবার", "সবার সাথে", "কারো সাথে না"], correct: "সবার সাথে"},
+    {q: "রমজানে বেশি কোন কাজ থেকে দূরে থাকা উচিত?", options: ["দোয়া", "মিথ্যা", "নামাজ", "দান"], correct: "মিথ্যা"},
+    {q: "রোজা রেখে আল্লাহর কাছে কী চাইতে হয়?", options: ["টাকা", "খেলনা", "ক্ষমা", "পোশাক"], correct: "ক্ষমা"},
+    {q: "রমজান মাসে কোন দরজা বন্ধ হয়?", options: ["জান্নাত", "জাহান্নাম", "বাজার", "স্কুল"], correct: "জাহান্নাম"},
+    {q: "রোজা রেখে ঝগড়া করা কী?", options: ["ভালো", "নিষেধ", "ফরজ", "সুন্নত"], correct: "নিষেধ"},
+    {q: "রমজানে বেশি কোন ইবাদত করা উচিত?", options: ["কুরআন তিলাওয়াত", "খেলা", "ভ্রমণ", "ঝগড়া"], correct: "কুরআন তিলাওয়াত"},
+    {q: "রোজা রেখে গালাগালি করা কী?", options: ["সওয়াব", "গুনাহ", "সম্মান", "পুরস্কার"], correct: "গুনাহ"},
+    {q: "রমজান মাসে কোন কাজের সওয়াব বেশি?", options: ["ইবাদত", "আড্ডা", "ঝগড়া", "অলসতা"], correct: "ইবাদত"},
+    {q: "রোজা রেখে কষ্ট সহ্য করলে কী শিখি?", options: ["অহংকার", "ধৈর্য", "রাগ", "হিংসা"], correct: "ধৈর্য"},
+    {q: "রমজান মাসে কুরআন কী করা হয়?", options: ["তিলাওয়াত", "লুকানো", "ফেলা", "বন্ধ"], correct: "তিলাওয়াত"},
+    {q: "রোজা রেখে কারো ক্ষতি করা কী?", options: ["ভালো", "সওয়াব", "গুনাহ", "সুन्नत"], correct: "গুনাহ"},
+    {q: "রমজানে বেশি কোন গুণ অর্জন করা উচিত?", options: ["তাকওয়া", "অহংকার", "রাগ", "হিংসা"], correct: "তাকওয়া"},
+    {q: "রোজা রেখে ধৈর্য ধরলে কী পাওয়া যায়?", options: ["সওয়াব", "গুনাহ", "ক্ষতি", "ভয়"], correct: "সওয়াব"},
+    {q: "রমজান মাস মুসলমানদের জন্য কী?", options: ["রহমত", "শাস্তি", "খেলা", "ঘুম"], correct: "রহমত"},
+    {q: "রোজা রেখে ভালো কাজ করলে কী হয়?", options: ["গুনাহ", "সওয়াব", "ক্ষতি", "ভয়"], correct: "সওয়াব"},
+    {q: "রমজানে বেশি কোন কাজ করা উচিত?", options: ["দোয়া", "ঝগড়া", "অলসতা", "গীবত"], correct: "দোয়া"},
+    {q: "রোজা রেখে নামাজ পড়া কী?", options: ["দরকার নেই", "গুরুত্বপূর্ণ", "নিষেধ", "খেলা"], correct: "গুরুত্বপূর্ণ"},
+    {q: "রমজানে বেশি কোন কাজ এড়ানো উচিত?", options: ["দান", "নামাজ", "মিথ্যা", "দোয়া"], correct: "মিথ্যা"},
+    {q: "রমজান আমাদের কী শিক্ষা দেয়?", options: ["তাকওয়া ও ধৈর্য", "রাগ", "অহংকার", "হিংসা"], correct: "তাকওয়া ও ধৈর্য"}
+];
 
-        function validateAndStart() {
-            const wa = document.getElementById('user-wa').value;
-            const email = document.getElementById('user-email').value;
-            const cls = document.getElementById('user-class').value;
-            let isValid = true;
-
-            if (!cls) isValid = false;
-
-            if (!/^[0-9]{11}$/.test(wa)) {
-                document.getElementById('wa-error').style.display = 'block';
-                isValid = false;
-            } else {
-                document.getElementById('wa-error').style.display = 'none';
-            }
-
-            if (!email.includes('@') || email.length < 5) {
-                document.getElementById('email-error').style.display = 'block';
-                isValid = false;
-            } else {
-                document.getElementById('email-error').style.display = 'none';
-            }
-
-            if (isValid) startQuiz();
+        function shuffle(arr) {
+            return arr.sort(() => Math.random() - 0.5);
         }
 
-        function shuffle(array) {
-            for (let i = array.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [array[i], array[j]] = [array[j], array[i]];
-            }
-            return array;
-        }
-
-        function startQuiz() {
-            const name = document.getElementById('user-name').value;
-            const inst = document.getElementById('user-inst').value;
-            const cls = document.getElementById('user-class').value;
-
-            document.getElementById('display-name').innerText = name;
-            document.getElementById('display-info').innerText = `${inst} | শ্রেণি: ${cls}`;
-            document.getElementById('avatar-init').innerText = name.charAt(0).toUpperCase();
+        function validateAndStart(e) {
+            e.preventDefault();
+            const phone = document.getElementById('u-phone').value;
             
-            document.getElementById('intro-screen').classList.add('hidden');
+            // ফোন নম্বর ভ্যালিডেশন চেক (০ দিয়ে শুরু এবং ১১ ডিজিট)
+            if (!phone.startsWith('0') || phone.length !== 11) {
+                alert("ভুল নম্বর! ফোন নম্বরটি অবশ্যই ০ দিয়ে শুরু হতে হবে এবং ১১ ডিজিটের হতে হবে।");
+                return;
+            }
+
+            document.getElementById('reg-screen').classList.add('hidden');
             document.getElementById('quiz-screen').classList.remove('hidden');
-
-            quizData = shuffle([...allQuestions]).slice(0, 50);
-            renderQuestions();
+            document.getElementById('live-user').innerText = document.getElementById('u-name').value;
             
-            isActive = true;
-            startTime = new Date();
+            testRunning = true;
+            setupQuestions();
             startTimer();
-            
-            window.addEventListener('blur', triggerCheat);
+            setupAntiCheat();
         }
 
-        function renderQuestions() {
-            const container = document.getElementById('questions-container');
-            container.innerHTML = quizData.map((item, index) => {
-                const options = [
-                    { id: 'a', text: item.a }, { id: 'b', text: item.b },
-                    { id: 'c', text: item.c }, { id: 'd', text: item.d }
-                ];
-                const shuffledOptions = shuffle([...options]);
+        function setupQuestions() {
+            // ২০০টি থেকে র‍্যান্ডম ৫০টি প্রশ্ন বাছাই
+            selectedSet = shuffle([...db]).slice(0, 50);
+            const area = document.getElementById('questions-area');
+            area.innerHTML = ''; 
 
-                return `
-                    <div class="question-block glass-card p-6 border-l-4 border-blue-600 shadow-xl">
-                        <p class="text-xl mb-6 font-medium leading-relaxed">${index + 1}. ${item.q}</p>
-                        <div class="grid grid-cols-1 gap-3">
-                            ${shuffledOptions.map(opt => `
-                                <label class="relative flex items-center cursor-pointer">
-                                    <input type="radio" name="q${index}" value="${opt.id}" class="hidden peer" required>
-                                    <div class="option-card w-full p-4 rounded-xl option-content peer-checked:bg-blue-600/30 peer-checked:border-blue-500 border border-white/5 hover:bg-white/5 transition-all">
-                                        <span class="text-gray-200">${opt.text}</span>
-                                    </div>
-                                </label>
-                            `).join('')}
-                        </div>
+            selectedSet.forEach((item, i) => {
+                const shuffledOptions = shuffle([...item.options]);
+                const qBlock = document.createElement('div');
+                qBlock.innerHTML = `
+                    <p class="text-lg font-bold text-gray-100 mb-4"><span class="text-[#fdbb2d]">${i+1}.</span> ${item.q}</p>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        ${shuffledOptions.map(opt => `
+                            <label>
+                                <input type="radio" name="q${i}" value="${opt}" class="hidden" required>
+                                <span class="option-card">${opt}</span>
+                            </label>
+                        `).join('')}
                     </div>
                 `;
-            }).join('');
+                area.appendChild(qBlock);
+            });
         }
 
         function startTimer() {
-            timer = setInterval(() => {
-                timeLeft--;
-                const minutes = Math.floor(timeLeft / 60);
-                const seconds = timeLeft % 60;
-                document.getElementById('timer').innerText = 
-                    `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-
-                if (timeLeft <= 0) {
-                    clearInterval(timer);
-                    submitQuiz();
-                }
+            timerTask = setInterval(() => {
+                countdown--;
+                let m = Math.floor(countdown / 60);
+                let s = countdown % 60;
+                document.getElementById('timer').innerText = `${m}:${s < 10 ? '0'+s : s}`;
+                
+                if (countdown <= 0) autoEnd("Time Up");
             }, 1000);
         }
 
-        function triggerCheat() {
-            if (!isActive) return;
-            isActive = false;
-            clearInterval(timer);
-            document.getElementById('cheat-overlay').style.display = 'flex';
-            submitQuiz(true);
+        function setupAntiCheat() {
+            // ট্যাব পরিবর্তন করলে পরীক্ষা বাতিল
+            window.onblur = () => {
+                if(testRunning) {
+                    autoEnd("Cheating Detected (Tab Change)");
+                }
+            };
         }
 
-        async function submitQuiz(cheated = false) {
-            if (!isActive && !cheated) return;
-            isActive = false;
-            clearInterval(timer);
+        function autoEnd(reason) {
+            if(!testRunning) return;
+            testRunning = false;
+            clearInterval(timerTask);
+            
+            if(reason.includes("Cheating")) {
+                document.getElementById('quiz-screen').classList.add('hidden');
+                document.getElementById('cheat-screen').style.display = 'flex';
+                submitData(reason);
+            } else {
+                submitData(reason);
+            }
+        }
 
-            const form = document.getElementById('quiz-form');
-            const formData = new FormData(form);
+        function finalSubmit(e) {
+            e.preventDefault();
+            if(!testRunning) return;
+            testRunning = false;
+            clearInterval(timerTask);
+            submitData("Normal Submission");
+        }
+
+        async function submitData(reason) {
             let score = 0;
-
-            quizData.forEach((item, index) => {
-                const answer = formData.get(`q${index}`);
-                if (answer === item.correct) score++;
+            selectedSet.forEach((item, i) => {
+                const ans = document.querySelector(`input[name="q${i}"]:checked`)?.value;
+                if(ans === item.correct) score++;
             });
 
-            const timeSpent = Math.floor((new Date() - startTime) / 1000);
-            const minutesUsed = Math.floor(timeSpent / 60);
-            const secondsUsed = timeSpent % 60;
-            const timeString = `${minutesUsed}m ${secondsUsed}s`;
+            const timeTaken = 1800 - countdown;
+            const finalTime = `${Math.floor(timeTaken/60)}m ${timeTaken%60}s`;
 
-            const name = document.getElementById('user-name').value;
-            const inst = document.getElementById('user-inst').value;
-            const cls = document.getElementById('user-class').value;
-            const wa = document.getElementById('user-wa').value;
-            const email = document.getElementById('user-email').value;
-
-            // Prepare result data for Web3Forms Dashboard
-            const emailData = {
-                access_key: "6643cbde-8097-4e6b-ac06-8ab73cd89f03",
-                subject: "Quiz Submission: " + name,
-                Participant_Name: name,
-                Institution: inst,
-                Class: cls,
-                WhatsApp: wa,
-                Email: email,
-                Total_Score: `${score} out of 50`,
-                Duration: timeString,
-                Exam_Status: cheated ? "CHEATED (Tab Switch)" : "Valid Submission"
-            };
-
-            // Switch to final screen (No marks shown)
+            // রেজাল্ট স্ক্রিন দেখানো
             document.getElementById('quiz-screen').classList.add('hidden');
-            if (!cheated) {
-                document.getElementById('result-screen').classList.remove('hidden');
-            }
+            document.getElementById('result-screen').classList.remove('hidden');
+            document.getElementById('final-score').innerText = score;
+
+            // Web3Forms-এ ডেটা পাঠানো
+            const formData = new FormData();
+            formData.append("access_key", apiKey);
+            
+            // সাবজেক্টে মার্কস যুক্ত করা হয়েছে যাতে ড্যাশবোর্ডে সরাসরি দেখা যায়
+            formData.append("subject", `Quiz Score: ${score}/50 - ${document.getElementById('u-name').value}`);
+            
+            formData.append("Full Name", document.getElementById('u-name').value);
+            formData.append("Institution", document.getElementById('u-inst').value);
+            formData.append("Class", document.getElementById('u-class').value);
+            formData.append("Phone/WhatsApp", document.getElementById('u-phone').value);
+            formData.append("Email Address", document.getElementById('u-email').value);
+            formData.append("Score", `${score} out of 50`);
+            formData.append("Time Duration", finalTime);
+            formData.append("Submit Type", reason);
 
             try {
                 await fetch("https://api.web3forms.com/submit", {
                     method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify(emailData)
+                    body: formData
                 });
             } catch (err) {
-                console.log("Network error but submission was attempted.");
+                console.log("Submission failed, but quiz finished locally.");
             }
         }
-
-        document.getElementById('quiz-form').addEventListener('submit', (e) => {
-            e.preventDefault();
-            submitQuiz();
-        });
-
-        document.addEventListener('contextmenu', e => e.preventDefault());
     </script>
 </body>
-
 </html>

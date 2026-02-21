@@ -85,13 +85,13 @@
 </head>
 <body>
 
-    <!-- Cheat Detection Screen -->
+    <!-- Cheat Detection -->
     <div id="cheat-screen">
         <h1 class="text-5xl font-bold text-red-600 mb-4">ধরা পড়েছেন!</h1>
-        <p class="text-xl text-gray-400 px-6">আপনি পরীক্ষার বাইরে যাওয়ার চেষ্টা করেছেন। <br> আপনার কুইজটি বাতিল করে রিপোর্ট পাঠানো হয়েছে।</p>
+        <p class="text-xl text-gray-400 px-6">আপনি ট্যাব পরিবর্তনের চেষ্টা করেছেন। আপনার কুইজটি বাতিল করা হয়েছে।</p>
     </div>
 
-    <!-- 1. Registration Screen -->
+    <!-- 1. Registration -->
     <div id="reg-screen" class="min-h-screen flex items-center justify-center p-4">
         <div class="glass-card w-full max-w-md p-8">
             <h1 class="text-2xl font-bold text-[#fdbb2d] mb-6 text-center">তথ্য প্রদান করুন</h1>
@@ -119,18 +119,14 @@
                     </select>
                 </div>
                 <div>
-                    <label class="text-xs text-gray-500 ml-1">হোয়াটসঅ্যাপ/ফোন নম্বর (১১ ডিজিট)</label>
-                    <input type="tel" id="u-phone" required 
-                           pattern="0[0-9]{10}" 
-                           title="অবশ্যই ০ দিয়ে শুরু এবং ১১ ডিজিট হতে হবে" 
-                           class="input-box" 
-                           placeholder="01XXXXXXXXX">
+                    <label class="text-xs text-gray-500 ml-1">হোয়াটসঅ্যাপ/ফোন নম্বর</label>
+                    <input type="tel" id="u-phone" required pattern="0[0-9]{10}" class="input-box" placeholder="01XXXXXXXXX">
                 </div>
                 <div>
                     <label class="text-xs text-gray-500 ml-1">ইমেইল ঠিকানা</label>
                     <input type="email" id="u-email" required class="input-box" placeholder="example@mail.com">
                 </div>
-                <button type="submit" class="w-full bg-[#fdbb2d] text-black font-bold py-3 rounded-lg hover:scale-[1.02] transition-transform mt-4">
+                <button type="submit" class="w-full bg-[#fdbb2d] text-black font-bold py-3 rounded-lg mt-4">
                     কুইজ শুরু করুন
                 </button>
             </form>
@@ -147,7 +143,7 @@
         <div class="max-w-3xl mx-auto p-4 py-10">
             <form id="quiz-form" onsubmit="finalSubmit(event)">
                 <div id="questions-area" class="space-y-10"></div>
-                <button type="submit" class="w-full bg-green-600 text-white font-bold py-4 rounded-xl mt-12 mb-20 hover:bg-green-700 transition-all">
+                <button type="submit" class="w-full bg-green-600 text-white font-bold py-4 rounded-xl mt-12 mb-20">
                     ফাইনাল সাবমিট
                 </button>
             </form>
@@ -159,11 +155,7 @@
         <div class="glass-card w-full max-w-sm p-10 text-center">
             <div class="text-green-500 text-6xl mb-4">✓</div>
             <h2 class="text-2xl font-bold mb-2">সাবমিট হয়েছে!</h2>
-            <p class="text-gray-400 mb-6 text-sm">আপনার ফলাফল ইমেলের মাধ্যমে সংরক্ষিত হয়েছে।</p>
-            <div class="bg-black p-6 rounded-2xl border border-gray-800">
-                <p class="text-gray-500 text-xs mb-1">প্রাপ্ত নম্বর</p>
-                <div class="text-4xl font-bold text-[#fdbb2d]"><span id="final-score">0</span> / 50</div>
-            </div>
+            <p class="text-gray-400 text-sm">আপনার উত্তর সফলভাবে গ্রহণ করা হয়েছে। অংশগ্রহণ করার জন্য ধন্যবাদ।</p>
         </div>
     </div>
 
@@ -386,14 +378,6 @@
 
         function validateAndStart(e) {
             e.preventDefault();
-            const phone = document.getElementById('u-phone').value;
-            
-            // ফোন নম্বর ভ্যালিডেশন চেক (০ দিয়ে শুরু এবং ১১ ডিজিট)
-            if (!phone.startsWith('0') || phone.length !== 11) {
-                alert("ভুল নম্বর! ফোন নম্বরটি অবশ্যই ০ দিয়ে শুরু হতে হবে এবং ১১ ডিজিটের হতে হবে।");
-                return;
-            }
-
             document.getElementById('reg-screen').classList.add('hidden');
             document.getElementById('quiz-screen').classList.remove('hidden');
             document.getElementById('live-user').innerText = document.getElementById('u-name').value;
@@ -405,7 +389,6 @@
         }
 
         function setupQuestions() {
-            // ২০০টি থেকে র‍্যান্ডম ৫০টি প্রশ্ন বাছাই
             selectedSet = shuffle([...db]).slice(0, 50);
             const area = document.getElementById('questions-area');
             area.innerHTML = ''; 
@@ -418,7 +401,7 @@
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
                         ${shuffledOptions.map(opt => `
                             <label>
-                                <input type="radio" name="q${i}" value="${opt}" class="hidden" required>
+                                <input type="radio" name="q${i}" value="${opt}" class="hidden">
                                 <span class="option-card">${opt}</span>
                             </label>
                         `).join('')}
@@ -434,17 +417,13 @@
                 let m = Math.floor(countdown / 60);
                 let s = countdown % 60;
                 document.getElementById('timer').innerText = `${m}:${s < 10 ? '0'+s : s}`;
-                
                 if (countdown <= 0) autoEnd("Time Up");
             }, 1000);
         }
 
         function setupAntiCheat() {
-            // ট্যাব পরিবর্তন করলে পরীক্ষা বাতিল
             window.onblur = () => {
-                if(testRunning) {
-                    autoEnd("Cheating Detected (Tab Change)");
-                }
+                if(testRunning) autoEnd("Cheating Detected (Tab Change)");
             };
         }
 
@@ -480,35 +459,29 @@
             const timeTaken = 1800 - countdown;
             const finalTime = `${Math.floor(timeTaken/60)}m ${timeTaken%60}s`;
 
-            // রেজাল্ট স্ক্রিন দেখানো
+            // UI আপডেট (মার্কস দেখানো হবে না)
             document.getElementById('quiz-screen').classList.add('hidden');
             document.getElementById('result-screen').classList.remove('hidden');
-            document.getElementById('final-score').innerText = score;
 
-            // Web3Forms-এ ডেটা পাঠানো
             const formData = new FormData();
             formData.append("access_key", apiKey);
-            
-            // সাবজেক্টে মার্কস যুক্ত করা হয়েছে যাতে ড্যাশবোর্ডে সরাসরি দেখা যায়
-            formData.append("subject", `Quiz Score: ${score}/50 - ${document.getElementById('u-name').value}`);
+            formData.append("subject", `Score: ${score}/50 - ${document.getElementById('u-name').value}`);
             
             formData.append("Full Name", document.getElementById('u-name').value);
             formData.append("Institution", document.getElementById('u-inst').value);
             formData.append("Class", document.getElementById('u-class').value);
-            formData.append("Phone/WhatsApp", document.getElementById('u-phone').value);
-            formData.append("Email Address", document.getElementById('u-email').value);
-            formData.append("Score", `${score} out of 50`);
-            formData.append("Time Duration", finalTime);
-            formData.append("Submit Type", reason);
+            formData.append("Phone", document.getElementById('u-phone').value);
+            formData.append("Email", document.getElementById('u-email').value);
+            formData.append("Score", `${score} / 50`);
+            formData.append("Duration", finalTime);
+            formData.append("Status", reason);
 
             try {
                 await fetch("https://api.web3forms.com/submit", {
                     method: "POST",
                     body: formData
                 });
-            } catch (err) {
-                console.log("Submission failed, but quiz finished locally.");
-            }
+            } catch (err) { }
         }
     </script>
 </body>

@@ -3,356 +3,441 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ramadan Olympiad 2026 | Results</title>
+    <title>রমজান অলিম্পিয়াড ২০২৬ | লিডারবোর্ড</title>
+    <!-- Tailwind CSS for styling -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Hind Siliguri -->
+    <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@300;400;500;600;700&display=swap');
-        body { font-family: 'Hind Siliguri', sans-serif; background-color: #050505; color: #e5e7eb; }
-        .glass-nav { background: rgba(0, 0, 0, 0.8); backdrop-filter: blur(15px); border-bottom: 1px solid rgba(255, 255, 255, 0.1); }
-        .glass-container { background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 24px; }
-        .modal-overlay { background: rgba(0, 0, 0, 0.9); backdrop-filter: blur(10px); display: none; position: fixed; inset: 0; z-index: 100; align-items: center; justify-content: center; }
-        .rank-top-3 { background: linear-gradient(90deg, rgba(251, 191, 36, 0.1), rgba(217, 119, 6, 0.03)); border-left: 4px solid #fbbf24; }
-        .rank-expelled { background: linear-gradient(90deg, rgba(239, 68, 68, 0.15), rgba(185, 28, 28, 0.05)) !important; border-left: 4px solid #ef4444 !important; opacity: 0.7; }
-        .action-icon { transition: all 0.2s; }
-        .action-icon:hover { transform: scale(1.15); }
-        /* No-Wrap Utility */
-        .force-one-line { white-space: nowrap; }
-        ::-webkit-scrollbar { width: 6px; height: 6px; }
-        ::-webkit-scrollbar-track { background: #0a0a0a; }
-        ::-webkit-scrollbar-thumb { background: #333; border-radius: 10px; }
+        body {
+            font-family: 'Hind Siliguri', sans-serif;
+            background-color: black;
+            color: #e2e8f0;
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            height: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #000;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #333;
+            border-radius: 10px;
+        }
+        .expelled-row {
+            background: rgba(239, 68, 68, 0.05);
+        }
+        .expelled-row:hover {
+            background: rgba(239, 68, 68, 0.1);
+        }
     </style>
 </head>
-<body class="pb-20">
+<body class="min-h-screen">
 
-    <nav class="glass-nav sticky top-0 z-50 px-4 py-3">
-        <div class="max-w-7xl mx-auto flex justify-between items-center">
+    <!-- Header Navigation -->
+    <nav class="sticky top-0 z-50 bg-black/90 backdrop-blur-md border-b border-white/10 px-4 py-3">
+        <div class="max-w-full flex justify-between items-center">
             <div class="flex items-center gap-3">
-                <div class="w-10 h-10 bg-yellow-500 rounded-xl flex items-center justify-center text-black font-bold">RO</div>
-                <div>
-                    <h2 class="text-white font-bold leading-none">রমজান অলিম্পিয়াড</h2>
-                    <span id="adminStatus" class="text-[10px] text-gray-500 uppercase">Public View</span>
+                <div class="p-1.5 bg-amber-500 rounded text-black animate-pulse">
+                    <i class="fa-solid fa-trophy text-lg"></i>
                 </div>
+                <h1 class="text-sm md:text-base font-bold text-white tracking-wide">রমজান অলিম্পিয়াড ২০২৬ | মেহেরপুর সরকারি কলেজ</h1>
             </div>
-            <div class="flex gap-3">
-                <button id="loginBtn" onclick="toggleModal('loginModal')" class="bg-white/5 border border-white/10 px-5 py-2 rounded-full text-sm font-bold transition">অ্যাডমিন লগইন</button>
-            </div>
+            <button onclick="toggleLogin()" class="flex items-center gap-2 px-3 py-1.5 bg-white/5 border border-white/10 rounded text-xs hover:bg-white/10 transition-all">
+                <i class="fa-solid fa-lock"></i> অ্যাডমিন
+            </button>
         </div>
     </nav>
 
-    <div class="max-w-7xl mx-auto px-4 mt-12">
-        <div class="text-center mb-12">
-            <h1 class="text-5xl md:text-7xl font-black text-white mb-4 tracking-tight">মেধা তালিকা <span class="text-yellow-500">২০২৬</span></h1>
-            <p class="text-gray-400">বাংলাদেশ ইসলামী ছাত্রশিবির, মেহেরপুর সরকারি কলেজ শাখা</p>
+    <!-- Control Bar -->
+    <div class="p-4 bg-zinc-900/50 border-b border-white/5 flex flex-wrap items-center gap-4">
+        <div class="relative flex-1 min-w-[280px]">
+            <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500 text-sm"></i>
+            <input 
+                type="text" 
+                id="searchInput"
+                onkeyup="searchTable()"
+                placeholder="নাম বা প্রতিষ্ঠান দিয়ে সার্চ করুন..." 
+                class="w-full bg-black border border-white/10 pl-10 pr-4 py-2 rounded text-sm focus:border-amber-500 outline-none transition-all"
+            />
         </div>
-
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8 text-center">
-            <div class="glass-container p-4 border-l-4 border-yellow-500"><p class="text-gray-400 text-sm">অংশগ্রহণকারী</p><span id="statTotal" class="text-2xl font-bold">0</span></div>
-            <div class="glass-container p-4 border-l-4 border-green-500"><p class="text-gray-400 text-sm">সর্বোচ্চ স্কোর</p><span class="text-2xl font-bold">৫০/৫০</span></div>
-            <div class="glass-container p-4 border-l-4 border-red-500"><p class="text-gray-400 text-sm">বহিষ্কৃত</p><span id="statExpelled" class="text-2xl font-bold">0</span></div>
+        <div class="text-xs font-semibold text-zinc-500 uppercase tracking-widest">
+            Total Valid: <span class="text-amber-500" id="participantCount">0</span>
         </div>
+    </div>
 
-        <div class="mb-8 relative">
-            <input type="text" id="searchInput" onkeyup="filterResults()" placeholder="নাম অথবা প্রতিষ্ঠানের নাম দিয়ে সার্চ করুন..." class="w-full bg-white/5 border border-white/10 px-6 py-4 rounded-2xl text-white outline-none focus:border-yellow-500">
+    <!-- Main Leaderboard Table -->
+    <div class="p-4">
+        <div class="flex items-center gap-2 mb-4 text-amber-500">
+            <i class="fa-solid fa-medal"></i>
+            <h2 class="text-sm font-bold uppercase tracking-wider">শীর্ষ অংশগ্রহণকারীদের তালিকা (লিডারবোর্ড)</h2>
         </div>
+        <div class="overflow-x-auto w-full border border-white/10 rounded-lg custom-scrollbar">
+            <table class="w-full text-xs whitespace-nowrap border-collapse" id="mainTable">
+                <thead>
+                    <tr class="bg-zinc-900 text-zinc-400 font-bold border-b border-white/10">
+                        <th class="px-4 py-3 text-left">Rank</th>
+                        <th class="px-4 py-3 text-left">Full Name</th>
+                        <th class="px-4 py-3 text-left">Email</th>
+                        <th class="px-4 py-3 text-left">Class</th>
+                        <th class="px-4 py-3 text-left">Duration</th>
+                        <th class="px-4 py-3 text-left">Institution</th>
+                        <th class="px-4 py-3 text-left">Phone</th>
+                        <th class="px-4 py-3 text-center">Score</th>
+                        <th class="px-4 py-3 text-left">Status</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-white/5" id="tableBody">
+                    <!-- Data will be inserted here by JS -->
+                </tbody>
+            </table>
+        </div>
+    </div>
 
-        <div class="glass-container overflow-hidden">
-            <div class="overflow-x-auto">
-                <table class="w-full text-left">
-                    <thead>
-                        <tr class="bg-white/5 text-gray-400 text-[11px] uppercase force-one-line">
-                            <th class="p-5">স্থান</th>
-                            <th class="p-5">নাম ও তথ্য</th>
-                            <th class="p-5">প্রতিষ্ঠান</th>
-                            <th class="p-5 text-center">স্কোর</th>
-                            <th class="p-5 text-center">সময়</th>
-                            <th class="p-5 text-center">অবস্থা</th>
-                            <th class="p-5 text-center admin-col hidden">যোগাযোগ</th>
-                        </tr>
-                    </thead>
-                    <tbody id="leaderboardRows"></tbody>
-                </table>
+    <!-- Expelled Section -->
+    <div class="p-4 mt-8 mb-10">
+        <div class="flex items-center gap-2 mb-4 text-red-500">
+            <i class="fa-solid fa-user-slash"></i>
+            <h2 class="text-sm font-bold uppercase tracking-wider">সম্মানিত অসদুপায় অবলম্বনকারী গণ (এক্সপেইল্ড লিস্ট)</h2>
+        </div>
+        <div class="overflow-x-auto w-full border border-red-500/20 rounded-lg bg-red-950/5 custom-scrollbar">
+            <table class="w-full text-xs whitespace-nowrap border-collapse">
+                <thead>
+                    <tr class="bg-red-900/20 text-red-400 font-bold border-b border-red-500/20 text-left">
+                        <th class="px-4 py-3">ক্র: নং</th>
+                        <th class="px-4 py-3">নাম</th>
+                        <th class="px-4 py-3">প্রতিষ্ঠান</th>
+                        <th class="px-4 py-3">অযোগ্যতার কারণ</th>
+                        <th class="px-4 py-3 text-center">স্ট্যাটাস</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-red-500/10">
+                    <tr class="expelled-row">
+                        <td class="px-4 py-3 text-red-900 font-bold">০১</td>
+                        <td class="px-4 py-3 font-bold text-red-400">মাহমুদা আক্তার</td>
+                        <td class="px-4 py-3 text-zinc-400">মেহেরপুর সরকারি মহিলা কলেজ</td>
+                        <td class="px-4 py-3 text-red-500"><i class="fa-solid fa-circle-exclamation mr-1"></i> Expelled for Cheating</td>
+                        <td class="px-4 py-3 text-center text-red-900 font-black">EXPELLED</td>
+                    </tr>
+                    <tr class="expelled-row">
+                        <td class="px-4 py-3 text-red-900 font-bold">০২</td>
+                        <td class="px-4 py-3 font-bold text-red-400">মোঃ ফাহিম</td>
+                        <td class="px-4 py-3 text-zinc-400">মেহেরপুর পৌর ডিগ্রি কলেজ</td>
+                        <td class="px-4 py-3 text-red-500"><i class="fa-solid fa-circle-exclamation mr-1"></i> Expelled for Cheating</td>
+                        <td class="px-4 py-3 text-center text-red-900 font-black">EXPELLED</td>
+                    </tr>
+                    <tr class="expelled-row">
+                        <td class="px-4 py-3 text-red-900 font-bold">০৩</td>
+                        <td class="px-4 py-3 font-bold text-red-400">হৃদয় আহমেদ</td>
+                        <td class="px-4 py-3 text-zinc-400">পিরোজপুর দাখিল মাদ্রাসা</td>
+                        <td class="px-4 py-3 text-red-500"><i class="fa-solid fa-circle-exclamation mr-1"></i> Expelled for Cheating</td>
+                        <td class="px-4 py-3 text-center text-red-900 font-black">EXPELLED</td>
+                    </tr>
+                    <tr class="expelled-row">
+                        <td class="px-4 py-3 text-red-900 font-bold">০৪</td>
+                        <td class="px-4 py-3 font-bold text-red-400">মোঃ আলিফ খাঁন</td>
+                        <td class="px-4 py-3 text-zinc-400">মেহেরপুর সরকারি কলেজ</td>
+                        <td class="px-4 py-3 text-red-500"><i class="fa-solid fa-circle-exclamation mr-1"></i> Expelled for Cheating</td>
+                        <td class="px-4 py-3 text-center text-red-900 font-black">EXPELLED</td>
+                    </tr>
+                    <tr class="expelled-row">
+                        <td class="px-4 py-3 text-red-900 font-bold">০৫</td>
+                        <td class="px-4 py-3 font-bold text-red-400">মাহফুজুর রহমান</td>
+                        <td class="px-4 py-3 text-zinc-400">মোমিনপুর হাই স্কুল</td>
+                        <td class="px-4 py-3 text-red-500"><i class="fa-solid fa-circle-exclamation mr-1"></i> Expelled for Cheating</td>
+                        <td class="px-4 py-3 text-center text-red-900 font-black">EXPELLED</td>
+                    </tr>
+                    <tr class="expelled-row">
+                        <td class="px-4 py-3 text-red-900 font-bold">০৬</td>
+                        <td class="px-4 py-3 font-bold text-red-400">ইফরাত হোসেন ইফরা</td>
+                        <td class="px-4 py-3 text-zinc-400">আমঝুপি গার্লস হাই স্কুল</td>
+                        <td class="px-4 py-3 text-red-500"><i class="fa-solid fa-circle-exclamation mr-1"></i> Expelled for Cheating</td>
+                        <td class="px-4 py-3 text-center text-red-900 font-black">EXPELLED</td>
+                    </tr>
+                    <tr class="expelled-row">
+                        <td class="px-4 py-3 text-red-900 font-bold">০৭</td>
+                        <td class="px-4 py-3 font-bold text-red-400">খালিদ হাসান মুন্না</td>
+                        <td class="px-4 py-3 text-zinc-400">মেহেরপুর আলিয়া মাদ্রাসা</td>
+                        <td class="px-4 py-3 text-red-500"><i class="fa-solid fa-circle-exclamation mr-1"></i> Expelled for Cheating</td>
+                        <td class="px-4 py-3 text-center text-red-900 font-black">EXPELLED</td>
+                    </tr>
+                    <tr class="expelled-row">
+                        <td class="px-4 py-3 text-red-900 font-bold">০৮</td>
+                        <td class="px-4 py-3 font-bold text-red-400">মোঃ ওয়াসিমুল জাওয়াদ</td>
+                        <td class="px-4 py-3 text-zinc-400">নৌবাহিনী কলেজ</td>
+                        <td class="px-4 py-3 text-red-500"><i class="fa-solid fa-circle-exclamation mr-1"></i> Expelled for Cheating</td>
+                        <td class="px-4 py-3 text-center text-red-900 font-black">EXPELLED</td>
+                    </tr>
+                    <tr class="expelled-row">
+                        <td class="px-4 py-3 text-red-900 font-bold">০৯</td>
+                        <td class="px-4 py-3 font-bold text-red-400">মোঃ শফিকুর রহমান</td>
+                        <td class="px-4 py-3 text-zinc-400">মেহেরপুর দারুল উলুম কামিল মাদ্রাসা</td>
+                        <td class="px-4 py-3 text-red-500"><i class="fa-solid fa-circle-exclamation mr-1"></i> Expelled for Double Attempt</td>
+                        <td class="px-4 py-3 text-center text-red-900 font-black">EXPELLED</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Admin Login Modal -->
+    <div id="loginModal" class="hidden fixed inset-0 z-[100] flex items-center justify-center bg-black/95 p-4">
+        <div class="w-full max-w-xs bg-zinc-900 border border-white/10 rounded-xl p-6 shadow-2xl">
+            <h2 class="text-sm font-bold text-center mb-4 uppercase tracking-widest text-zinc-500">Admin Authentication</h2>
+            <input 
+                type="password" 
+                id="adminPass"
+                placeholder="পাসওয়ার্ড লিখুন"
+                class="w-full bg-black border border-white/10 px-4 py-2.5 rounded text-sm outline-none focus:border-amber-500 text-center mb-4 text-white"
+            />
+            <div class="flex gap-2">
+                <button onclick="toggleLogin()" class="flex-1 py-2 text-xs font-bold text-zinc-500 hover:text-white">Cancel</button>
+                <button onclick="validateAdmin()" class="flex-1 py-2 bg-amber-500 text-black text-xs font-bold rounded">Access</button>
             </div>
         </div>
     </div>
 
-    <div id="loginModal" class="modal-overlay px-4">
-        <div class="bg-[#0f0f0f] border border-white/10 p-10 rounded-[40px] max-w-sm w-full text-center">
-            <h3 class="text-2xl font-bold text-white mb-6">অ্যাডমিন প্রবেশ</h3>
-            <input type="email" id="emailInput" placeholder="ইমেইল" class="w-full bg-white/5 border border-white/10 px-5 py-3 rounded-xl mb-4 text-white">
-            <input type="password" id="passInput" placeholder="পাসওয়ার্ড" class="w-full bg-white/5 border border-white/10 px-5 py-3 rounded-xl mb-6 text-white">
-            <button onclick="handleLogin()" class="w-full bg-yellow-500 text-black font-bold py-4 rounded-2xl">লগইন</button>
-            <button onclick="toggleModal('loginModal')" class="text-gray-500 mt-4 block mx-auto">বন্ধ করুন</button>
-        </div>
+    <!-- Footer -->
+    <div class="p-6 bg-zinc-950 border-t border-white/5 text-[9px] text-zinc-800 text-center uppercase font-bold tracking-[0.3em]">
+        © 2026 BICS Meherpur • Anti-Cheat Engine Enabled
     </div>
 
     <script>
-        const ADMIN_EMAIL = "bics.mgc@gmail.com";
-        const ADMIN_PASS = "mgc.shibir";
+        const rawParticipants = [
+  { name: "রেদুয়ান আহমদ রাহি", email: "reduanahmedrahi2008@gmail.com", class: "৬ষ্ঠ", duration: "13m 5s", inst: "মেহেরপুর টেকনিক্যাল স্কুল এন্ড কলেজ", phone: "01930192071", score: "47 / 50", status: "Normal Submission" },
+  { name: "শাহলিনা তাবাসসুম রাহি", email: "shahlinatabassumrahi@gmail.com", class: "৬ষ্ঠ", duration: "5m 19s", inst: "মোহাম্মদপুর গার্লস কলেজ", phone: "01943932804", score: "43 / 50", status: "Normal Submission" },
+  { name: "মোছা :মরিয়ম", email: "muskanjannat859807444@gmail.com", class: "একাদশ", duration: "8m 26s", inst: "মেহেরপুর সরকারি মহিলা কলেজ", phone: "01859807444", score: "49 / 50", status: "Normal Submission" },
+  { name: "ঐশি হাবিব এশা", email: "Oishehabibesha@gmail.com", class: "একাদশ", duration: "5m 35s", inst: "আদমজী ক্যান্ট. কলেজ", phone: "01718733287", score: "48 / 50", status: "Normal Submission" },
+  { name: "সাবরিনা সুলতানা", email: "sabrinasultana656@gmail.com", class: "একাদশ", duration: "8m 23s", inst: "মেহেরপুর সরকারি মহিলা কলেজ", phone: "01788773013", score: "50 / 50", status: "Normal Submission" },
+  { name: "শুভ্র", email: "shuvrod007@gmail.com", class: "একাদশ", duration: "4m 34s", inst: "সরকারি বাঙলা কলেজ", phone: "01595617449", score: "49 / 50", status: "Normal Submission" },
+  { name: "খাব্বাব শাহিদ", email: "khabbabshahid33@gmail.com", class: "একাদশ", duration: "10m 35s", inst: "গাংনী পাইলট স্কুল অ্যান্ড কলেজ", phone: "01907719891", score: "44 / 50", status: "Normal Submission" },
+  { name: "মীর ফারদীন হুসাইন", email: "mirfardin52@gmail.com", class: "একাদশ", duration: "4m 36s", inst: "মেহেরপুর পৌর ডিগ্রি কলেজ", phone: "01864415995", score: "48 / 50", status: "Normal Submission" },
+  { name: "রোমান", email: "mdromanmolla150@gmail.com", class: "৬ষ্ঠ", duration: "4m 3s", inst: "টিটিসি, মেহেরপুর", phone: "01566048000", score: "48 / 50", status: "Normal Submission" },
+  { name: "খন্দকার নোমান", email: "khondakernoman0@gmail.com", class: "একাদশ", duration: "3m 44s", inst: "মেহেরপুর পৌর ডিগ্রি কলেজ", phone: "01826052864", score: "48 / 50", status: "Normal Submission" },
+  { name: "মোঃ নবাব", email: "mdnobabuddin10@gmail.com", class: "একাদশ", duration: "3m 44s", inst: "মেহেরপুর পৌর ডিগ্রি কলেজ", phone: "01822060221", score: "47 / 50", status: "Normal Submission" },
+  { name: "সাব্বির", email: "s97781170@gmail.com", class: "একাদশ", duration: "3m 47s", inst: "মেহেরপুর সরকারি কলেজ", phone: "01961362870", score: "48 / 50", status: "Normal Submission" },
+  { name: "মোঃ ফরহাদ রেজা", email: "forhadspeech@gmail.com", class: "একাদশ", duration: "4m 19s", inst: "মুজিবনগর সরকারি ডিগ্রি কলেজ", phone: "01930739383", score: "50 / 50", status: "Normal Submission" },
+  { name: "রাকিব", email: "mdrakib403meherpur@gmail.com", class: "অন্যান্য", duration: "8m 14s", inst: "মেহেরপুর সরকারি কলেজ", phone: "01983278150", score: "47 / 50", status: "Normal Submission" },
+  { name: "মোঃ হাবিবুর রহমান", email: "habibonfier013@gmail.com", class: "৬ষ্ঠ", duration: "6m 38s", inst: "টিটিসি মেহেরপুর", phone: "01325375604", score: "49 / 50", status: "Normal Submission" },
+  { name: "মোঃ আরবিন হোসেন", email: "arbin.meherpur.mahp@gmail.com", class: "একাদশ", duration: "3m 29s", inst: "কুষ্টিয়া গভ. সেন্ট্রাল কলেজ", phone: "01794957406", score: "48 / 50", status: "Normal Submission" },
+  { name: "মশিউর রহমান", email: "megdadmd57@gmail.com", class: "অন্যান্য", duration: "5m 45s", inst: "মেহেরপুর সরকারি কলেজ", phone: "01759477314", score: "49 / 50", status: "Normal Submission" },
+  { name: "মোঃ মশিউর রহমান", email: "vamousmr89@gmail.com", class: "একাদশ", duration: "5m 55s", inst: "ঢাকা কলেজ", phone: "01607237505", score: "46 / 50", status: "Normal Submission" },
+  { name: "মোঃ শাহরিয়ার নাভিন", email: "shahriarnavin62@gmail.com", class: "অন্যান্য", duration: "4m 5s", inst: "মেহেরপুর সরকারি কলেজ", phone: "01964021251", score: "49 / 50", status: "Normal Submission" },
+  { name: "সাবিক", email: "getsabik007@gmail.com", class: "একাদশ", duration: "7m 27s", inst: "মেহেরপুর সরকারি কলেজ", phone: "01727744210", score: "46 / 50", status: "Normal Submission" },
+  { name: "মোঃ সোহাগ", email: "dkshohag123@gmail.com", class: "একাদশ", duration: "10m 32s", inst: "মেহেরপুর সরকারি কলেজ", phone: "01789690360", score: "49 / 50", status: "Normal Submission" },
+  { name: "মোছাঃ জেসিনিয়া আফরিন", email: "runuyarakhatun@gmail.com", class: "৬ষ্ঠ", duration: "6m 6s", inst: "মুজিবনগর সরকারি টেকনিক্যাল স্কুল এন্ড কলেজ", phone: "01940066604", score: "44 / 50", status: "Normal Submission" },
+  { name: "লাবিব আহামেদ", email: "mdlabib4033@gmail.com", class: "৬ষ্ঠ", duration: "10m 15s", inst: "মেহেরপুর টেকনিক্যাল স্কুল এন্ড কলেজ", phone: "01613878978", score: "48 / 50", status: "Normal Submission" },
+  { name: "মোঃ জিসান মোল্লা", email: "jmjisan23@gmail.com", class: "একাদশ", duration: "7m 29s", inst: "মুজিবনগর সরকারি টেকনিক্যাল স্কুল এন্ড কলেজ", phone: "01581316263", score: "48 / 50", status: "Normal Submission" },
+  { name: "মোঃ সাব্বির হোসেন", email: "sabbirshajju@gamil.com", class: "অন্যান্য", duration: "9m 32s", inst: "মেহেরপুর সরকারি কলেজ", phone: "01983288530", score: "43 / 50", status: "Normal Submission" },
+  { name: "শেখ আবিদ আল হাসান", email: "sheikhabidalhasan@gmail.com", class: "অন্যান্য", duration: "6m 24s", inst: "মেহেরপুর সরকারি কলেজ", phone: "01315032736", score: "46 / 50", status: "Normal Submission" },
+  { name: "রাহাত আহমেদ", email: "mnrahat.mn149@gmail.comm", class: "একাদশ", duration: "2m 50s", inst: "এ.আর.বি কলেজ", phone: "01852492417", score: "50 / 50", status: "Normal Submission" },
+  { name: "মোঃ আবিব", email: "abib67334@gmail.com", class: "অন্যান্য", duration: "7m 19s", inst: "মেহেরপুর সরকারি কলেজ", phone: "01581547534", score: "47 / 50", status: "Normal Submission" },
+  { name: "মোঃ হাসিবুর রহমান", email: "hashiburrahman62@gmail.com", class: "অন্যান্য", duration: "11m 3s", inst: "মেহেরপুর সরকারি কলেজ", phone: "01402403838", score: "49 / 50", status: "Normal Submission" },
+  { name: "সুজন মিয়া", email: "sujanmia18.06.05@gmail.com", class: "একাদশ", duration: "2m 56s", inst: "মেহেরপুর আলিয়া মাদ্রাসা", phone: "01405243585", score: "50 / 50", status: "Normal Submission" },
+  { name: "তাসনিম হাসান", email: "tasnimhasan1726@gmail.com", class: "একাদশ", duration: "3m 20s", inst: "কুষ্টিয়া সরকারি কলেজ", phone: "01817166554", score: "49 / 50", status: "Normal Submission" },
+  { name: "আমির হামজা", email: "amirhamzahamza78@gmail.com", class: "অন্যান্য", duration: "6m 45s", inst: "মেহেরপুর সরকারি কলেজ", phone: "01624218832", score: "49 / 50", status: "Normal Submission" },
+  { name: "মাহমুদা আক্তার মৌ", email: "mahabub7alom77@gmail.com", class: "একাদশ", duration: "3m 59s", inst: "মেহেরপুর সরকারি মহিলা কলেজ", phone: "01778940487", score: "49 / 50", status: "Normal Submission" },
+  { name: "মো:নাবিদ হাসান", email: "khajmatkhan@gmail.com", class: "একাদশ", duration: "8m 32s", inst: "মুজিবনগর সরকারি ডিগ্রী কলেজ", phone: "01595618160", score: "47 / 50", status: "Normal Submission" },
+  { name: "আরাফাত হোসেন", email: "arafatrahman1262008@gmail.com", class: "একাদশ", duration: "5m 24s", inst: "মেহেরপুর সরকারি কলেজ", phone: "01877894172", score: "48 / 50", status: "Normal Submission" },
+  { name: "মোঃ তানজিল হাসান", email: "mdkamruzzamanrubel53@gmail.com", class: "৬ষ্ঠ", duration: "7m 10s", inst: "জিনিয়াস ল্যাবরেটরি স্কুল এন্ড কলেজ", phone: "01997969518", score: "48 / 50", status: "Normal Submission" },
+  { name: "নাফিজ", email: "bmkhulbo@gmail.com", class: "অন্যান্য", duration: "3m 51s", inst: "আমঝুপি আলিম মাদ্রাসা", phone: "01400545385", score: "49 / 50", status: "Normal Submission" },
+  { name: "মহিমা পারভীন ওহি", email: "ohimr895@gmail.com", class: "৬ষ্ঠ", duration: "7m 21s", inst: "মেহেরপুর সরকারি বালিকা উচ্চ বিদ্যালয়", phone: "01315429855", score: "50 / 50", status: "Normal Submission" },
+  { name: "অরজিফা আফসানা তৃপ্তি", email: "tusharimran02008@gmail.com", class: "৬ষ্ঠ", duration: "3m 48s", inst: "বাড়ীবাকা সীমান্ত মাধ্যমিক বালিকা বিদ্যালয়", phone: "01640373892", score: "47 / 50", status: "Normal Submission" },
+  { name: "তুষার ইমরান", email: "tusherimran02008@gmail.com", class: "একাদশ", duration: "3m 30s", inst: "মেহেরপুর সরকারি কলেজ", phone: "01860498754", score: "49 / 50", status: "Normal Submission" },
+  { name: "মুস্তাফিজুর রহমান", email: "mustafizibtikar143@gmail.com", class: "একাদশ", duration: "15m 31s", inst: "কুষ্টিয়া পলিটেকনিক ইনস্টিটিউট", phone: "01816959679", score: "50 / 50", status: "Normal Submission" },
+  { name: "নাঈম", email: "sheikhsamsularafinnaeim@gmail.com", class: "অন্যান্য", duration: "6m 12s", inst: "জগন্নাথ বিশ্ববিদ্যালয়", phone: "01329104380", score: "42 / 50", status: "Normal Submission" },
+  { name: "মাসুম", email: "masum100xx@gmail.com", class: "৬ষ্ঠ", duration: "2m 50s", inst: "মোমিনপুর হাই স্কুল", phone: "01884331016", score: "49 / 50", status: "Normal Submission" },
+  { name: "শাদমান ইশরাক", email: "rengun5803@gmail.com", class: "৬ষ্ঠ", duration: "4m 5s", inst: "নওগাঁ কেডি সরকারি উচ্চ বিদ্যালয়", phone: "01757221729", score: "47 / 50", status: "Normal Submission" },
+  { name: "মোঃ আকাশ আলী", email: "akashahmedm150@gmail.com", class: "একাদশ", duration: "3m 52s", inst: "মেহেরপুর সরকারি কলেজ", phone: "01784240033", score: "50 / 50", status: "Normal Submission" },
+  { name: "সাকিব হোসেন", email: "mdsakibhossan123123@gmail.com", class: "অন্যান্য", duration: "19m 31s", inst: "মেহেরপুর সরকারী কলেজ", phone: "01943736094", score: "47 / 50", status: "Normal Submission" },
+  { name: "আবরার শারিদ", email: "abrarsharid79@gmail.com", class: "অন্যান্য", duration: "3m 12s", inst: "খুলনা বিশ্ববিদ্যালয়", phone: "01793520834", score: "50 / 50", status: "Normal Submission" },
+  { name: "আনিকা তাবাসসুম", email: "anikatabassum220033@gmail.com", class: "একাদশ", duration: "3m 29s", inst: "মেহেরপুর দারুল উলুম আহমাদিয়া কামিল মাদ্রাসা", phone: "01822492233", score: "48 / 50", status: "Normal Submission" },
+  { name: "মোঃ আব্দুস সালাম", email: "abdussa2002@gmail.com", class: "অন্যান্য", duration: "3m 58s", inst: "চুয়াডাঙ্গা সরকারি কলেজ", phone: "01328254531", score: "48 / 50", status: "Normal Submission" },
+  { name: "সামীর হোসেন সোহান", email: "mdshohanislam09@gmail.com", class: "একাদশ", duration: "4m 12s", inst: "মেহেরপুর সরকারি কলেজ, মেহেরপুর। ", phone: "01791440988", score: "50 / 50", status: "Normal Submission" },
+  { name: "মোঃ সাকিব আহমেদ", email: "md9202478@gmail.com", class: "৬ষ্ঠ", duration: "9m 15s", inst: "জিনিয়াস ল্যাবরেটরি স্কুল এন্ড college", phone: "01308565488", score: "49 / 50", status: "Normal Submission" },
+  { name: "ইমন", email: "mynameemon4040@gmail.com", class: "অন্যান্য", duration: "6m 17s", inst: "ঢাকা কলেজ", phone: "01610600751", score: "49 / 50", status: "Normal Submission" },
+  { name: "হৃদয় আহমেদ", email: "hridoyahmed34340@gmail.con", class: "৬ষ্ঠ", duration: "4m 13s", inst: "পিরোজপুর দাখিল মাদ্রাসা", phone: "01823792275", score: "46 / 50", status: "Normal Submission" },
+  { name: "রাকিব", email: "rakibullmollik12@gmail.com", class: "৬ষ্ঠ", duration: "5m 32s", inst: "রাধাকান্তপুর মোহাম্মদিয়া হাফিজিয়া মাদ্রাসা", phone: "01902119771", score: "37 / 50", status: "Normal Submission" },
+  { name: "খালিদ হাসান", email: "khalid0963.fhfjvhgvb@gmail.com", class: "অন্যান্য", duration: "14m 37s", inst: "মেহেরপুর আলিয়া মাদ্রাসা", phone: "01823838709", score: "50 / 50", status: "Normal Submission" },
+  { name: "মো নাজমুস সাকিন", email: "mdnazmussakib236@gmail.com", class: "একাদশ", duration: "24m 4s", inst: "মেহেরপুর পৌর ডিগ্রি কলেজ", phone: "01606806004", score: "48 / 50", status: "Normal Submission" },
+  { name: "খালিদ হাসান (মুন্না)", email: "m49744479@gmail.com", class: "অন্যান্য", duration: "15m 37s", inst: "মেহেরপুর আলিয়া মাদ্রাসা", phone: "01923957517", score: "48 / 50", status: "Normal Submission" },
+  { name: "শামিম", email: "shamin17371@gmail.com", class: "একাদশ", duration: "20m 36s", inst: "মেহেরপুর পৌর ডিগ্রি কলেজ", phone: "01914915470", score: "50 / 50", status: "Normal Submission" },
+  { name: "নাজাত আলী", email: "mdnajat128@gmail.com", class: "৬ষ্ঠ", duration: "9m 37s", inst: "মেহেরপুর সরকারি টেকনিক্যাল স্কুল এন্ড কলেজ", phone: "01926029128", score: "40 / 50", status: "Normal Submission" },
+  { name: "মুস্তাকিম রহমান প্রিন্স", email: "aloisalamera71@gmail.com", class: "৬ষ্ঠ", duration: "6m 11s", inst: "মেহেরপুর সরকারি উচ্চ বিদ্যালয়", phone: "01642844291", score: "49 / 50", status: "Normal Submission" },
+  { name: "সাব্বির আহমেদ", email: "sabbirahmed7905@gmail.com", class: "অন্যান্য", duration: "5m 13s", inst: "কুষ্টিয়া সরকারি কলেজ", phone: "01521704910", score: "48 / 50", status: "Normal Submission" },
+  { name: "মারুফ", email: "mdk713102@gmail.com", class: "একাদশ", duration: "9m 44s", inst: "মেহেরপুর পৌর ডিগ্রি কলেজ", phone: "01985332525", score: "47 / 50", status: "Normal Submission" },
+  { name: "মোঃ ফাহিম", email: "masura.barsha@gmail.com", class: "একাদশ", duration: "7m 38s", inst: "মেহেরপুর পৌর ডিগ্রি কলেজ", phone: "01860224137", score: "47 / 50", status: "Normal Submission" },
+  { name: "অর্পণ", email: "tanzifrahmanarpon@gmail.com", class: "অন্যান্য", duration: "5m 9s", inst: "ঢাকা বিশ্ববিদ্যালয়", phone: "01818823167", score: "50 / 50", status: "Normal Submission" },
+  { name: "মো তৌফিকুর রহমান", email: "abhi43579@gmail.com", class: "অন্যান্য", duration: "5m 17s", inst: "মেহেরপুর সরকারি কলেজ", phone: "01870629647", score: "50 / 50", status: "Normal Submission" },
+  { name: "তাজিম মিয়া", email: "trishaakter664@gmail.com", class: "৬ষ্ঠ", duration: "6m 45s", inst: "জিনিয়াস ল্যাবরেটরী স্কুল এন্ড কলেজ", phone: "01995580728", score: "43 / 50", status: "Normal Submission" },
+  { name: "মোহাম্মদ অভি", email: "ovimohammad198@gmail.com", class: "একাদশ", duration: "4m 28s", inst: "মেহেরপুর পৌর ডিগ্রি কলেজ", phone: "01826052864", score: "50 / 50", status: "Normal Submission" },
+  { name: "মো: নেহাল শাহরিয়ার", email: "nehalshariar23@gmail.com", class: "একাদশ", duration: "3m 43s", inst: "মেহেরপুর সরকারি কলেজ", phone: "01704575247", score: "50 / 50", status: "Normal Submission" },
+  { name: "মোছাঃ সালমা আক্তার", email: "ummesalma.v21@gmail.com", class: "অন্যান্য", duration: "3m 55s", inst: "মেহেরপুর সরকারি কলেজ", phone: "01742293204", score: "50 / 50", status: "Normal Submission" },
+  { name: "মোহা: শিপন শাহরিয়ার", email: "shepon1204@gmail.com", class: "অন্যান্য", duration: "19m 22s", inst: "মেহেরপুর সরকারি কলেজ", phone: "01883882743", score: "49 / 50", status: "Normal Submission" },
+  { name: "মোঃ তামজিদ আলী", email: "mtamjid190@gmail.com", class: "একাদশ", duration: "30m 0s", inst: "মেহেরপুর পৌর ডিগ্রি কলেজ", phone: "01323500083", score: "15 / 50", status: "Time Up" },
+  { name: "মো: সাজিদ", email: "sajidurrahmansajid690@gmail.com", class: "অন্যান্য", duration: "6m 8s", inst: "মেহেরপুর সরকারি কলেজ", phone: "01321087847", score: "46 / 50", status: "Normal Submission" },
+  { name: "আব্দুল্লাহ আল মারুফ", email: "mdk646430@gmail.com", class: "একাদশ", duration: "6m 31s", inst: "মেহেরপুর পৌর ডিগ্রি কলেজ", phone: "01985332525", score: "41 / 50", status: "Normal Submission" },
+  { name: "মোঃ মশিউর রহমান", email: "moshiurbd09@gmail.com", class: "একাদশ", duration: "9m 48s", inst: "মেহেরপুর সরকারি কলেজ", phone: "01822943964", score: "48 / 50", status: "Normal Submission" },
+  { name: "ইসরাত জাহান", email: "eshratjahan810@gmail.com", class: "৬ষ্ঠ", duration: "7m 24s", inst: "আমঝুপী আইডিয়াল স্কুল", phone: "01759477314", score: "48 / 50", status: "Normal Submission" },
+  { name: "মোঃ রাহিদ হোসাইন", email: "rahidulislam9900@gmail.com", class: "অন্যান্য", duration: "5m 13s", inst: "মেহেরপুর আলিয়া মাদ্রাসা", phone: "01331450970", score: "48 / 50", status: "Normal Submission" },
+  { name: "শাপলা", email: "shapla01748@gmail.com", class: "একাদশ", duration: "15m 49s", inst: "মেহেরপুর সরকারি মহিলাবকলেজ", phone: "01410651378", score: "50 / 50", status: "Normal Submission" },
+  { name: "মোঃ মাসুদ রানা", email: "mdmonirul2579@gmail.com", class: "৬ষ্ঠ", duration: "4m 33s", inst: "মেহেরপুর সরকারি উচ্চ বিদ্যালয়, মেহেরপুর", phone: "01778644736", score: "50 / 50", status: "Normal Submission" },
+  { name: "আমিন আলী", email: "mdaminali360@gmail.com", class: "অন্যান্য", duration: "3m 43s", inst: "মেহেরপুর সরকারি কলেজ", phone: "01304358583", score: "49 / 50", status: "Normal Submission" },
+  { name: "শেহজাদ", email: "ashrafulgdm@gmail.com", class: "৬ষ্ঠ", duration: "6m 15s", inst: "জিনিয়াস ল্যাবরেটরি স্কুল এন্ড কলেজ", phone: "01886930262", score: "45 / 50", status: "Normal Submission" },
+  { name: "মাহফুজুর রহমান", email: "manikfarazii@gmail.com", class: "একাদশ", duration: "3m 10s", inst: "চুয়াডাঙ্গা সরকারি কলেজ", phone: "01898718896", score: "49 / 50", status: "Normal Submission" },
+  { name: "মোহাম্মদ সিফাত", email: "mdsafayethossen405@gmail.com", class: "একাদশ", duration: "4m 12s", inst: "মেহেরপুর পৌর ডিগ্রি কলেজ", phone: "01915140232", score: "48 / 50", status: "Normal Submission" },
+  { name: "মোঃ জুয়েল হোসেন", email: "juwelrana001894@gmail.com", class: "অন্যান্য", duration: "4m 53s", inst: "তেরাইল জোড়পুকুরিয়া ডিগ্রি কলেজ", phone: "01749539124", score: "50 / 50", status: "Normal Submission" },
+  { name: "হুমায়রা", email: "abusayedhabibullah@gmail.com", class: "৬ষ্ঠ", duration: "7m 49s", inst: "মেহেরপুর সরকারি বালিকা উচ্চ বিদ্যালয়", phone: "01716586934", score: "48 / 50", status: "Normal Submission" },
+  { name: "নাহিদ", email: "nahidranamd54@gmail.com", class: "একাদশ", duration: "5m 23s", inst: "এ.আর.বি কলেজ", phone: "01822608101", score: "45 / 50", status: "Normal Submission" },
+  { name: "ফাতেমা আক্তার কনক", email: "k30415671@gmail.com", class: "একাদশ", duration: "2m 43s", inst: "কুষ্টিয়া সরকারি কলেজ", phone: "01937949298", score: "50 / 50", status: "Normal Submission" },
+  { name: "মুন্না মিয়া", email: "munnnamia77mia@gmail.com", class: "একাদশ", duration: "13m 19s", inst: "মেহেরপুর সরকারি কলেজ", phone: "01752809677", score: "49 / 50", status: "Normal Submission" },
+  { name: "এম.এ. গাফফার রিমন", email: "remongamingwith45@gmail.com", class: "একাদশ", duration: "3m 56s", inst: "মেহেরপুর সরকারী কলেজ", phone: "01833000655", score: "49 / 50", status: "Normal Submission" },
+  { name: "মোঃ নাসির ইকবাল", email: "roton123meherpur@gmail.com", class: "একাদশ", duration: "4m 54s", inst: "মেহেরপুর সরকারি কলেজ", phone: "01602491964", score: "50 / 50", status: "Normal Submission" },
+  { name: "মোঃ আলাউদ্দিন আলী", email: "mdalauddinali271@gmail.com", class: "একাদশ", duration: "2m 31s", inst: "কুষ্টিয়া গভ. সেন্ট্রাল কলেজ", phone: "01876097768", score: "50 / 50", status: "Normal Submission" },
+  { name: "আবুসাঈদ", email: "abusayed1122abusayed@gmail.com", class: "একাদশ", duration: "14m 11s", inst: "মেহেরপুর আলিয়া মাদ্রাসা", phone: "01785826022", score: "45 / 50", status: "Normal Submission" },
+  { name: "নাঈমুর রহমান", email: "naeemurrahamann@gmail.com", class: "একাদশ", duration: "4m 55s", inst: "মেহেরপুর সরকারি কলেজ", phone: "01724846400", score: "50 / 50", status: "Normal Submission" },
+  { name: "আসিফ খান", email: "ak2272467@gmail.com", class: "অন্যান্য", duration: "23m 25s", inst: "মেহেরপুর সরকারি কলেজ", phone: "01610106832", score: "48 / 50", status: "Normal Submission" },
+  { name: "ইমরুল কায়েস", email: "sayedkayes19@gmail.com", class: "একাদশ", duration: "12m 35s", inst: "সিভিল অ্যাভিয়েশন স্কুল এন্ড কলেজ,তেজগাঁও ", phone: "01317750046", score: "48 / 50", status: "Normal Submission" },
+  { name: "মীম", email: "ssharmin3167@gmail.com", class: "অন্যান্য", duration: "5m 22s", inst: "মেহেরপুর সরকারি কলেজ", phone: "01975813167", score: "39 / 50", status: "Normal Submission" },
+  { name: "মোঃ রোমান মোল্লা", email: "gubroman55@gmail.com", class: "৬ষ্ঠ", duration: "9m 55s", inst: "টিটিসি, মেহেরপুর", phone: "01952949129", score: "47 / 50", status: "Normal Submission" },
+  { name: "মোঃ আল আমিন রহমান", email: "mdalaminrahman408@gmail.com", class: "অন্যান্য", duration: "2m 32s", inst: "রংপুর মেডিকেল কলেজ", phone: "01846935140", score: "50 / 50", status: "Normal Submission" },
+  { name: "সূয়াইব", email: "shuaibtoni1234@gmail.com", class: "৬ষ্ঠ", duration: "9m 25s", inst: "লাইসাম হাই স্কুল", phone: "01717805127", score: "49 / 50", status: "Normal Submission" },
+  { name: "বিধান আহম্মেদ", email: "bidhanahmmed872@gmail.com", class: "একাদশ", duration: "13m 6s", inst: "মেহেরপুর পৌর ডিগ্রি কলেজ", phone: "01323360732", score: "50 / 50", status: "Normal Submission" },
+  { name: "মিফতাহুল খালিদ", email: "miftahulkhalid22@gmail.com", class: "অন্যান্য", duration: "4m 36s", inst: "মেহেরপুর দারুল উলুম আহমাদিয়া কামিল মাদ্রাসা", phone: "01878985979", score: "50 / 50", status: "Normal Submission" },
+  { name: "সুজন আহমেদ", email: "SUROJAHMED112200.3@gmail.com", class: "একাদশ", duration: "4m 36s", inst: "হিজুলি মুনাওয়ারা ইসলামিয়া মাদ্রাসা", phone: "01951115773", score: "49 / 50", status: "Normal Submission" },
+  { name: "মোছাঃ আসমা উল হুসনা", email: "mstafroza041@gmail.com", class: "৬ষ্ঠ", duration: "2m 51s", inst: "মেহেরপুর সরকারি বালিকা উচ্চ বিদ্যালয়", phone: "01917395662", score: "50 / 50", status: "Normal Submission" },
+  { name: "নাফিজ ইকবাল", email: "mdnafiziqbal69@gmail.com", class: "অন্যান্য", duration: "5m 39s", inst: "মেহেরপুর দারুল উলম আহমাদিয়া ফাজিল মাদ্রাসা", phone: "01311846307", score: "49 / 50", status: "Normal Submission" },
+  { name: "মোঃ তানজিনুল ইসলাম", email: "mdtanjinulislamhamim@gmail.com", class: "একাদশ", duration: "5m 1s", inst: "মেহেরপুর সরকারি কলেজ", phone: "01969439762", score: "43 / 50", status: "Normal Submission" },
+  { name: "মুশফিকুর রহমান মিরাজ", email: "mirazmushikurrahman@gmail.com", class: "৬ষ্ঠ", duration: "5m 10s", inst: "মেহেরপুর সরকারি টেকনিক্যাল স্কুল এন্ড কলেজ", phone: "01618489215", score: "48 / 50", status: "Normal Submission" },
+  { name: "মোছাঃ ফাতেমা খাতুন", email: "etikhatun24bd@gmail.com", class: "অন্যান্য", duration: "29m 3s", inst: "মেহেরপুর সরকারি কলেজ", phone: "01401569180", score: "48 / 50", status: "Normal Submission" },
+  { name: "ফাহিম আনজুম তানাজ", email: "amjumfahim621@gmail.com", class: "একাদশ", duration: "12m 0s", inst: "মেহেরপুর সরকারি কলেজ", phone: "01984716033", score: "48 / 50", status: "Normal Submission" },
+  { name: "সাদাত আল সাবাহ", email: "sadatalsabah91@gmail.com", class: "একাদশ", duration: "3m 51s", inst: "বরেন্দ্র কলেজ, রাজশাহী", phone: "01321578258", score: "49 / 50", status: "Normal Submission" },
+  { name: "মোঃ সম্রাট আলী", email: "smd126584@gmail.com", class: "একাদশ", duration: "6m 4s", inst: "মেহেরপুর সরকারি কলেজ", phone: "01986208798", score: "50 / 50", status: "Normal Submission" },
+  { name: "মোঃ হিচাব আলী", email: "hesabali895@gmail.com", class: "৬ষ্ঠ", duration: "11m 46s", inst: "মেহেরপুর সরকারি উচ্চ বিদ্যালয়", phone: "01941904177", score: "47 / 50", status: "Normal Submission" },
+  { name: "মুজাহিদ", email: "nmujahid1245@gmail.com", class: "৬ষ্ঠ", duration: "9m 25s", inst: "মেহেরপুর আলিয়া মাদ্রাসা মাদ্রাসা", phone: "01401569309", score: "41 / 50", status: "Normal Submission" },
+  { name: "মোঃ আব্দুল্লাহ", email: "abdullahmd748790@gmail.com", class: "অন্যান্য", duration: "9m 1s", inst: "মেহেরপুর সরকারি কলেজ", phone: "01972649525", score: "50 / 50", status: "Normal Submission" },
+  { name: "বাধন", email: "skbadhon184@gmail.com", class: "একাদশ", duration: "4m 3s", inst: "মেহেরপুর সবকারি কলেজ", phone: "01888104849", score: "46 / 50", status: "Normal Submission" },
+  { name: "নাঈম হোসেন", email: "mdnasimahamed567@gmail.com", class: "৬ষ্ঠ", duration: "4m 6s", inst: "গাড়াডোব হাই স্কুল", phone: "01407956713", score: "49 / 50", status: "Normal Submission" },
+  { name: "মাহির শাহরিয়ার", email: "mahirshariar72@gmail.com", class: "৬ষ্ঠ", duration: "5m 10s", inst: "জিনিয়াস ল্যাবরেটরি স্কুল এন্ড কলেজ", phone: "01837935424", score: "48 / 50", status: "Normal Submission" },
+  { name: "আবু সুফিয়ান", email: "mdsomratbd96@gmail.com", class: "৬ষ্ঠ", duration: "3m 8s", inst: "কামদেবপুর মাধ্যমিক বিদ্যালয়", phone: "01881215497", score: "48 / 50", status: "Normal Submission" },
+  { name: "মোঃ হাসানুজ্জামান", email: "mdhasauzzaman383@gmail.com", class: "৬ষ্ঠ", duration: "6m 9s", inst: "জিনিয়াস ল্যাবরেটরী স্কুল এন্ড কলেজ", phone: "01918600383", score: "47 / 50", status: "Normal Submission" },
+  { name: "মোঃ মাসুম রেজা", email: "mdmonirulislammm24@gmail.com", class: "একাদশ", duration: "5m 21s", inst: "মেহেরপুর সরকারি কলেজ, মেহেরপুর ", phone: "01761748201", score: "50 / 50", status: "Normal Submission" },
+  { name: "মোঃ রাফি", email: "rafirifa1234567@gmail.com", class: "একাদশ", duration: "4m 40s", inst: "আমঝুপি আলিম মাদ্রাসা", phone: "01405697095", score: "49 / 50", status: "Normal Submission" },
+  { name: "হোসাইন", email: "hussain09348377@gmail.com", class: "একাদশ", duration: "8m 17s", inst: "মেহেরপুর সরকারি কলেজ", phone: "01340791759", score: "41 / 50", status: "Normal Submission" },
+  { name: "মোঃ ইমতিয়াজ বিশ্বাস", email: "rukasana369@gmail.com", class: "৬ষ্ঠ", duration: "5m 1s", inst: "মেহেরপুর সরকারি উচ্চ বিদ্যালয়, মেহেরপুর", phone: "01729177566", score: "49 / 50", status: "Normal Submission" },
+  { name: "ইমারা খাতুন", email: "emaraa0219@gmail.com", class: "অন্যান্য", duration: "4m 43s", inst: "মেহেরপুর সরকারি কলেজ", phone: "01310365651", score: "47 / 50", status: "Normal Submission" },
+  { name: "মোঃ রিয়াদ শাহরিয়ার", email: "reyadsahoriar2@gmail.com", class: "অন্যান্য", duration: "5m 27s", inst: "মেহেরপুর সরকারি কলেজ", phone: "01928651378", score: "50 / 50", status: "Normal Submission" },
+  { name: "সাব্বির আহমেদ", email: "shahidulislamshahid44@gmail.com", class: "৬ষ্ঠ", duration: "3m 59s", inst: "গাংনী মডেল পাইলট স্কুল এন্ড কলেজ", phone: "01313360921", score: "50 / 50", status: "Normal Submission" },
+  { name: "মোঃ মাহাফুজ হাসান", email: "mahafujhasanshuvo@gmail.com", class: "অন্যান্য", duration: "6m 29s", inst: "মেহেরপুর সরকারি কলেজ", phone: "01516509963", score: "50 / 50", status: "Normal Submission" },
+  { name: "শাওন ইসলাম", email: "mstmehenazkhatun@gmail.com", class: "একাদশ", duration: "22m 51s", inst: "মেহেরপুর সরকারি কলেজ", phone: "01872413932", score: "48 / 50", status: "Normal Submission" },
+  { name: "শাহরিয়ার হিমু", email: "khanhimu991@gmail.com", class: "একাদশ", duration: "5m 5s", inst: "মেহেরপুর পৌর ডিগ্রি কলেজ", phone: "01938167210", score: "48 / 50", status: "Normal Submission" },
+  { name: "মোঃ নিরব হোসেন", email: "hosennirob013244@gmail.com", class: "একাদশ", duration: "9m 40s", inst: "মেহেরপুর সরকারি কলেজ", phone: "01324472517", score: "50 / 50", status: "Normal Submission" },
+  { name: "তানভির আহমেদ", email: "ahmedaltanvir31415@gmail.com", class: "একাদশ", duration: "4m 9s", inst: "মেহেরপুর পৌর ডিগ্রি কলেজ", phone: "01844343463", score: "50 / 50", status: "Normal Submission" },
+  { name: "মো: মারুফ হোসেন", email: "maurfm56@gmail.com", class: "অন্যান্য", duration: "6m 19s", inst: "মেহেরপুর সরকারি কলেজ", phone: "01746914105", score: "50 / 50", status: "Normal Submission" },
+  { name: "মাহমুদা আক্তার", email: "mursalinalmahaud@gmail.com", class: "একাদশ", duration: "4m 14s", inst: "মেহেরপুর সরকারি মহিলা কলেজ", phone: "01920281861", score: "47 / 50", status: "Normal Submission" },
+  { name: "মোঃ আব্দুর মোক্তাদির", email: "mdabdulmoktadir28@gmail.com", class: "অন্যান্য", duration: "5m 3s", inst: "মেহেরপুর সরকারি কলেজ", phone: "01709809860", score: "50 / 50", status: "Normal Submission" },
+  { name: "মারুফ হোসাইন", email: "Mymaruf95@gmail.com", class: "একাদশ", duration: "9m 44s", inst: "মেহেরপুর পৌর ডিগ্রি college", phone: "01964019105", score: "46 / 50", status: "Normal Submission" },
+  { name: "রনি আহমেদ", email: "roni200826@gmail.com", class: "একাদশ", duration: "4m 28s", inst: "মেহেরপুর সরকারী কলেজ", phone: "01877009525", score: "50 / 50", status: "Normal Submission" },
+  { name: "নাঈমুর রহমান", email: "naeemurrahaman@gmail.com", class: "একাদশ", duration: "7m 21s", inst: "মেহেরপুর সরকারি কলেজ", phone: "01724846400", score: "49 / 50", status: "Normal Submission" },
+  { name: "মোঃ রিওন আলী", email: "mdrionali00@gmail.com", class: "একাদশ", duration: "3m 49s", inst: "মেহেরপুর সরকারি কলেজ", phone: "01328995187", score: "50 / 50", status: "Normal Submission" },
+  { name: "মো:আশিকুর রহমান গালিব", email: "ashikurgalib@gmail.com", class: "একাদশ", duration: "3m 44s", inst: "মেহেরপুর সরকারি কলেজ", phone: "01725915775", score: "49 / 50", status: "Normal Submission" },
+  { name: "মোঃ হাসনাত জামান", email: "mdhasnatjaman382@gmail.com", class: "অন্যান্য", duration: "2m 57s", inst: "মেহেরপুর সরকারি কলেজ", phone: "01867266940", score: "50 / 50", status: "Normal Submission" }
+];
+
         let isAdmin = false;
 
-        const rawParticipants = [
-            { name: "রেদুয়ান আহমদ রাহি", email: "reduanahmedrahi2008@gmail.com", class: "৬ষ্ঠ", duration: "13m 5s", inst: "মেহেরপুর টেকনিক্যাল স্কুল এন্ড কলেজ", phone: "01930192071", score: "47 / 50" },
-            { name: "শাহলিনা তাবাসসুম রাহি", email: "shahlinatabassumrahi@gmail.com", class: "৬ষ্ঠ", duration: "5m 19s", inst: "মোহাম্মদপুর গার্লস কলেজ", phone: "01943932804", score: "43 / 50" },
-            { name: "মোছা :মরিয়ম", email: "muskanjannat859807444@gmail.com", class: "একাদশ", duration: "8m 26s", inst: "মেহেরপুর সরকারি মহিলা কলেজ", phone: "01859807444", score: "49 / 50" },
-            { name: "ঐশি হাবিব এশা", email: "Oishehabibesha@gmail.com", class: "একাদশ", duration: "5m 35s", inst: "আদমজী ক্যান্ট. কলেজ", phone: "01718733287", score: "48 / 50" },
-            { name: "সাবরিনা সুলতানা", email: "sabrinasultana656@gmail.com", class: "একাদশ", duration: "8m 23s", inst: "মেহেরপুর সরকারি মহিলা কলেজ", phone: "01788773013", score: "50 / 50" },
-            { name: "শুভ্র", email: "shuvrod007@gmail.com", class: "একাদশ", duration: "4m 34s", inst: "সরকারি বাঙলা কলেজ", phone: "01595617449", score: "49 / 50" },
-            { name: "খাব্বাব শাহিদ", email: "khabbabshahid33@gmail.com", class: "একাদশ", duration: "10m 35s", inst: "গাংনী পাইলট স্কুল অ্যান্ড কলেজ", phone: "01907719891", score: "44 / 50" },
-            { name: "মীর ফারদীন হুসাইন", email: "mirfardin52@gmail.com", class: "একাদশ", duration: "4m 36s", inst: "মেহেরপুর পৌর ডিগ্রি কলেজ", phone: "01864415995", score: "48 / 50" },
-            { name: "রোমান", email: "mdromanmolla150@gmail.com", class: "৬ষ্ঠ", duration: "4m 3s", inst: "টিটিসি, মেহেরপুর", phone: "01566048000", score: "48 / 50" },
-            { name: "খন্দকার নোমান", email: "khondakernoman0@gmail.com", class: "একাদশ", duration: "3m 44s", inst: "মেহেরপুর পৌর ডিগ্রি কলেজ", phone: "01826052864", score: "48 / 50" },
-            { name: "মোঃ নবাব", email: "mdnobabuddin10@gmail.com", class: "একাদশ", duration: "3m 44s", inst: "মেহেরপুর পৌর ডিগ্রি কলেজ", phone: "01822060221", score: "47 / 50" },
-            { name: "সাব্বির", email: "s97781170@gmail.com", class: "একাদশ", duration: "3m 47s", inst: "মেহেরপুর সরকারি কলেজ", phone: "01961362870", score: "48 / 50" },
-            { name: "মোঃ ফরহাদ রেজা", email: "forhadspeech@gmail.com", class: "একাদশ", duration: "4m 19s", inst: "মুজিবনগর সরকারি ডিগ্রি কলেজ", phone: "01930739383", score: "50 / 50" },
-            { name: "রাকিব", email: "mdrakib403meherpur@gmail.com", class: "অন্যান্য", duration: "8m 14s", inst: "মেহেরপুর সরকারি কলেজ", phone: "01983278150", score: "47 / 50" },
-            { name: "মোঃ হাবিবুর রহমান", email: "habibonfier013@gmail.com", class: "৬ষ্ঠ", duration: "6m 38s", inst: "টিটিসি মেহেরপুর", phone: "01325375604", score: "49 / 50" },
-            { name: "মোঃ আরবিন হোসেন", email: "arbin.meherpur.mahp@gmail.com", class: "একাদশ", duration: "3m 29s", inst: "কুষ্টিয়া গভ. সেন্ট্রাল কলেজ", phone: "01794957406", score: "48 / 50" },
-            { name: "মশিউর রহমান", email: "megdadmd57@gmail.com", class: "অন্যান্য", duration: "5m 45s", inst: "মেহেরপুর সরকারি কলেজ", phone: "01759477314", score: "49 / 50" },
-            { name: "মোঃ মশিউর রহমান", email: "vamousmr89@gmail.com", class: "একাদশ", duration: "5m 55s", inst: "ঢাকা কলেজ", phone: "01607237505", score: "46 / 50" },
-            { name: "মোঃ শাহরিয়ার নাভিন", email: "shahriarnavin62@gmail.com", class: "অন্যান্য", duration: "4m 5s", inst: "মেহেরপুর সরকারি কলেজ", phone: "01964021251", score: "49 / 50" },
-            { name: "সাবিক", email: "getsabik007@gmail.com", class: "একাদশ", duration: "7m 27s", inst: "মেহেরপুর সরকারি কলেজ", phone: "01727744210", score: "46 / 50" },
-            { name: "মোঃ সোহাগ", email: "dkshohag123@gmail.com", class: "একাদশ", duration: "10m 32s", inst: "মেহেরপুর সরকারি কলেজ", phone: "01789690360", score: "49 / 50" },
-            { name: "মোছাঃ জেসিনিয়া আফরিন", email: "runuyarakhatun@gmail.com", class: "৬ষ্ঠ", duration: "6m 6s", inst: "মুজিবনগর টেকনিক্যাল স্কুল", phone: "01940066604", score: "44 / 50" },
-            { name: "লাবিব আহামেদ", email: "mdlabib4033@gmail.com", class: "৬ষ্ঠ", duration: "10m 15s", inst: "মেহেরপুর টেকনিক্যাল স্কুল", phone: "01613878978", score: "48 / 50" },
-            { name: "মোঃ জিসান মোল্লা", email: "jmjisan23@gmail.com", class: "একাদশ", duration: "7m 29s", inst: "মুজিবনগর টেকনিক্যাল স্কুল", phone: "01581316263", score: "48 / 50" },
-            { name: "মোঃ সাব্বির হোসেন", email: "sabbirshajju@gamil.com", class: "অন্যান্য", duration: "9m 32s", inst: "মেহেরপুর সরকারি কলেজ", phone: "01983288530", score: "43 / 50" },
-            { name: "শেখ আবিদ আল হাসান", email: "sheikhabidalhasan@gmail.com", class: "অন্যান্য", duration: "6m 24s", inst: "মেহেরপুর সরকারি কলেজ", phone: "01315032736", score: "46 / 50" },
-            { name: "রাহাত আহমেদ", email: "mnrahat.mn149@gmail.comm", class: "একাদশ", duration: "2m 50s", inst: "এ.আর.বি কলেজ", phone: "01852492417", score: "50 / 50" },
-            { name: "মোঃ আবিব", email: "abib67334@gmail.com", class: "অন্যান্য", duration: "7m 19s", inst: "মেহেরপুর সরকারি কলেজ", phone: "01581547534", score: "47 / 50" },
-            { name: "মোঃ হাসিবুর রহমান", email: "hashiburrahman62@gmail.com", class: "অন্যান্য", duration: "11m 3s", inst: "মেহেরপুর সরকারি কলেজ", phone: "01402403838", score: "49 / 50" },
-            { name: "সুজন মিয়া", email: "sujanmia18.06.05@gmail.com", class: "একাদশ", duration: "2m 56s", inst: "মেহেরপুর আলিয়া মাদ্রাসা", phone: "01405243585", score: "50 / 50" },
-            { name: "তাসনিম হাসান", email: "tasnimhasan1726@gmail.com", class: "একাদশ", duration: "3m 20s", inst: "কুষ্টিয়া সরকারি কলেজ", phone: "01817166554", score: "49 / 50" },
-            { name: "আমির হামজা", email: "amirhamzahamza78@gmail.com", class: "অন্যান্য", duration: "6m 45s", inst: "মেহেরপুর সরকারি কলেজ", phone: "01624218832", score: "49 / 50" },
-            { name: "মাহমুদা আক্তার মৌ", email: "mahabub7alom77@gmail.com", class: "একাদশ", duration: "3m 59s", inst: "মেহেরপুর সরকারি মহিলা কলেজ", phone: "01778940487", score: "49 / 50" },
-            { name: "মো:নাবিদ হাসান", email: "khajmatkhan@gmail.com", class: "একাদশ", duration: "8m 32s", inst: "মুজিবনগর সরকারি ডিগ্রী কলেজ", phone: "01595618160", score: "47 / 50" },
-            { name: "আরাফাত হোসেন", email: "arafatrahman1262008@gmail.com", class: "একাদশ", duration: "5m 24s", inst: "মেহেরপুর সরকারি কলেজ", phone: "01877894172", score: "48 / 50" },
-            { name: "মোঃ তানজিল হাসান", email: "mdkamruzzamanrubel53@gmail.com", class: "৬ষ্ঠ", duration: "7m 10s", inst: "জিনিয়াস ল্যাবরেটরি কলেজ", phone: "01997969518", score: "48 / 50" },
-            { name: "নাফিজ", email: "bmkhulbo@gmail.com", class: "অন্যান্য", duration: "3m 51s", inst: "আমঝুপি আলিম মাদ্রাসা", phone: "01400545385", score: "49 / 50" },
-            { name: "মহিমা পারভীন ওহি", email: "ohimr895@gmail.com", class: "৬ষ্ঠ", duration: "7m 21s", inst: "মেহেরপুর সরকারি বালিকা উচ্চ বিদ্যালয়", phone: "01315429855", score: "50 / 50" },
-            { name: "অরজিফা আফসানা তৃপ্তি", email: "tusharimran02008@gmail.com", class: "৬ষ্ঠ", duration: "3m 48s", inst: "বাড়ীবাকা সীমান্ত বিদ্যালয়", phone: "01640373892", score: "47 / 50" },
-            { name: "তুষার ইমরান", email: "tusherimran02008@gmail.com", class: "একাদশ", duration: "3m 30s", inst: "মেহেরপুর সরকারি কলেজ", phone: "01860498754", score: "49 / 50" },
-            { name: "মুস্তাফিজুর রহমান", email: "mustafizibtikar143@gmail.com", class: "একাদশ", duration: "15m 31s", inst: "কুষ্টিয়া পলিটেকনিক", phone: "01816959679", score: "50 / 50" },
-            { name: "মাসুম", email: "masum100xx@gmail.com", class: "৬ষ্ঠ", duration: "2m 50s", inst: "মোমিনপুর হাই স্কুল", phone: "01884331016", score: "49 / 50" },
-            { name: "শাদমান ইশরাক", email: "rengun5803@gmail.com", class: "৬ষ্ঠ", duration: "4m 5s", inst: "নওগাঁ কেডি সরকারি বিদ্যালয়", phone: "01757221729", score: "47 / 50" },
-            { name: "মোঃ আকাশ আলী", email: "akashahmedm150@gmail.com", class: "একাদশ", duration: "3m 52s", inst: "মেহেরপুর সরকারি কলেজ", phone: "01784240033", score: "50 / 50" },
-            { name: "আবরার শারিদ", email: "abrarsharid79@gmail.com", class: "অন্যান্য", duration: "3m 12s", inst: "খুলনা বিশ্ববিদ্যালয়", phone: "01793520834", score: "50 / 50" },
-            { name: "আনিকা তাবাসসুম", email: "anikatabassum220033@gmail.com", class: "একাদশ", duration: "3m 29s", inst: "মেহেরপুর কামিল মাদ্রাসা", phone: "01822492233", score: "48 / 50" },
-            { name: "সামীর হোসেন সোহান", email: "mdshohanislam09@gmail.com", class: "একাদশ", duration: "4m 12s", inst: "মেহেরপুর সরকারি কলেজ", phone: "01791440988", score: "50 / 50" },
-            { name: "হৃদয় আহমেদ", email: "hridoyahmed34340@gmail.con", class: "৬ষ্ঠ", duration: "4m 13s", inst: "পিরোজপুর দাখিল মাদ্রাসা", phone: "01823792275", score: "46 / 50" },
-            { name: "খালিদ হাসান", email: "khalid0963.fhfjvhgvb@gmail.com", class: "অন্যান্য", duration: "14m 37s", inst: "মেহেরপুর আলিয়া মাদ্রাসা", phone: "01823838709", score: "50 / 50" },
-            { name: "শামিম", email: "shamin17371@gmail.com", class: "একাদশ", duration: "20m 36s", inst: "মেহেরপুর পৌর ডিগ্রি কলেজ", phone: "01914915470", score: "50 / 50" },
-            { name: "মুস্তাকিম রহমান প্রিন্স", email: "aloisalamera71@gmail.com", class: "৬ষ্ঠ", duration: "6m 11s", inst: "মেহেরপুর সরকারি উচ্চ বিদ্যালয়", phone: "01642844291", score: "49 / 50" },
-            { name: "অর্পণ", email: "tanzifrahmanarpon@gmail.com", class: "অন্যান্য", duration: "5m 9s", inst: "ঢাকা বিশ্ববিদ্যালয়", phone: "01818823167", score: "50 / 50" },
-            { name: "মো: নেহাল শাহরিয়ার", email: "nehalshariar23@gmail.com", class: "একাদশ", duration: "3m 43s", inst: "মেহেরপুর সরকারি কলেজ", phone: "01704575247", score: "50 / 50" },
-            { name: "মোছাঃ সালমা আক্তার", email: "ummesalma.v21@gmail.com", class: "অন্যান্য", duration: "3m 55s", inst: "মেহেরপুর সরকারি কলেজ", phone: "01742293204", score: "50 / 50" },
-            { name: "মোঃ মাসুদ রানা", email: "mdmonirul2579@gmail.com", class: "৬ষ্ঠ", duration: "4m 33s", inst: "মেহেরপুর সরকারি উচ্চ বিদ্যালয়", phone: "01778644736", score: "50 / 50" },
-            { name: "ফাতেমা আক্তার কনক", email: "k30415671@gmail.com", class: "একাদশ", duration: "2m 43s", inst: "কুষ্টিয়া সরকারি কলেজ", phone: "01937949298", score: "50 / 50" },
-            { name: "মোঃ নাসির ইকবাল", email: "roton123meherpur@gmail.com", class: "একাদশ", duration: "4m 54s", inst: "মেহেরপুর সরকারি কলেজ", phone: "01602491964", score: "50 / 50" },
-            { name: "মোঃ আলাউদ্দিন আলী", email: "mdalauddinali271@gmail.com", class: "একাদশ", duration: "2m 31s", inst: "কুষ্টিয়া গভ. সেন্ট্রাল কলেজ", phone: "01876097768", score: "50 / 50" },
-            { name: "নাঈমুর রহমান", email: "naeemurrahamann@gmail.com", class: "একাদশ", duration: "4m 55s", inst: "মেহেরপুর সরকারি কলেজ", phone: "01724846400", score: "50 / 50" },
-            { name: "মোঃ আল আমিন রহমান", email: "mdalaminrahman408@gmail.com", class: "অন্যান্য", duration: "2m 32s", inst: "রংপুর মেডিকেল কলেজ", phone: "01846935140", score: "50 / 50" },
-            { name: "মিফতাহুল খালিদ", email: "miftahulkhalid22@gmail.com", class: "অন্যান্য", duration: "4m 36s", inst: "মেহেরপুর কামিল মাদ্রাসা", phone: "01878985979", score: "50 / 50" },
-            { name: "মোছাঃ আসমা উল হুসনা", email: "mstafroza041@gmail.com", class: "৬ষ্ঠ", duration: "2m 51s", inst: "মেহেরপুর সরকারি বালিকা উচ্চ বিদ্যালয়", phone: "01917395662", score: "50 / 50" },
-            { name: "মোঃ সম্রাট আলী", email: "smd126584@gmail.com", class: "একাদশ", duration: "6m 4s", inst: "মেহেরপুর সরকারি কলেজ", phone: "01986208798", score: "50 / 50" },
-            { name: "মোঃ আব্দুল্লাহ", email: "abdullahmd748790@gmail.com", class: "অন্যান্য", duration: "9m 1s", inst: "মেহেরপুর সরকারি কলেজ", phone: "01972649525", score: "50 / 50" },
-            { name: "মোঃ মাসুম রেজা", email: "mdmonirulislammm24@gmail.com", class: "একাদশ", duration: "5m 21s", inst: "মেহেরপুর সরকারি কলেজ", phone: "01761748201", score: "50 / 50" },
-            { name: "মোঃ রিয়াদ শাহরিয়ার", email: "reyadsahoriar2@gmail.com", class: "অন্যান্য", duration: "5m 27s", inst: "মেহেরপুর সরকারি কলেজ", phone: "01928651378", score: "50 / 50" },
-            { name: "সাব্বির আহমেদ", email: "shahidulislamshahid44@gmail.com", class: "৬ষ্ঠ", duration: "3m 59s", inst: "গাংনী মডেল পাইলট স্কুল", phone: "01313360921", score: "50 / 50" },
-            { name: "মোঃ মাহাফুজ হাসান", email: "mahafujhasanshuvo@gmail.com", class: "অন্যান্য", duration: "6m 29s", inst: "মেহেরপুর সরকারি কলেজ", phone: "01516509963", score: "50 / 50" },
-            { name: "মোঃ নিরব হোসেন", email: "hosennirob013244@gmail.com", class: "একাদশ", duration: "9m 40s", inst: "মেহেরপুর সরকারি কলেজ", phone: "01324472517", score: "50 / 50" },
-            { name: "তানভির আহমেদ", email: "ahmedaltanvir31415@gmail.com", class: "একাদশ", duration: "4m 9s", inst: "মেহেরপুর পৌর ডিগ্রি কলেজ", phone: "01844343463", score: "50 / 50" },
-            { name: "মো: মারুফ হোসেন", email: "maurfm56@gmail.com", class: "অন্যান্য", duration: "6m 19s", inst: "মেহেরপুর সরকারি কলেজ", phone: "01746914105", score: "50 / 50" },
-            { name: "মোঃ আব্দুর মোক্তাদির", email: "mdabdulmoktadir28@gmail.com", class: "অন্যান্য", duration: "5m 3s", inst: "মেহেরপুর সরকারি কলেজ", phone: "01709809860", score: "50 / 50" },
-            { name: "রনি আহমেদ", email: "roni200826@gmail.com", class: "একাদশ", duration: "4m 28s", inst: "মেহেরপুর সরকারী কলেজ", phone: "01877009525", score: "50 / 50" },
-            { name: "মোঃ রিওন আলী", email: "mdrionali00@gmail.com", class: "একাদশ", duration: "3m 49s", inst: "মেহেরপুর সরকারি কলেজ", phone: "01328995187", score: "50 / 50" },
-            { name: "মোঃ হাসনাত জামান", email: "mdhasnatjaman382@gmail.com", class: "অন্যান্য", duration: "2m 57s", inst: "মেহেরপুর সরকারি কলেজ", phone: "01867266940", score: "50 / 50" }
-        ];
-
-        const expelledList = [
-            { name: "মাহমুদা আক্তার", inst: "মেহেরপুর সরকারি মহিলা কলেজ" },
-            { name: "মোঃ ফাহিম", inst: "মেহেরপুর পৌর ডিগ্রি কলেজ" },
-            { name: "ইফরাত হোসেন ইফরা", inst: "আমঝুপি গার্লস হাই স্কুল" }
-        ];
-
-        function timeToSeconds(t) {
-            const parts = t.split(' ');
-            let sec = 0;
-            parts.forEach(p => {
-                if(p.includes('m')) sec += parseInt(p) * 60;
-                if(p.includes('s')) sec += parseInt(p);
-            });
-            return sec;
-        }
-
-        // Clean Phone Numbers to 11 digits starting with 0
-        function cleanPhone(p) {
-            let num = p.replace(/\D/g, '');
-            if (num.length === 10) num = '0' + num;
-            return num;
-        }
-
-        const masterList = [...rawParticipants]
-            .sort((a,b) => {
-                const sA = parseInt(a.score.split('/')[0]);
-                const sB = parseInt(b.score.split('/')[0]);
-                if(sB !== sA) return sB - sA;
-                return timeToSeconds(a.duration) - timeToSeconds(b.duration);
-            })
-            .map((p, idx) => ({ ...p, rank: idx + 1, type: 'merit', phone: cleanPhone(p.phone) }));
-
-        const fullList = [...masterList, ...expelledList.map(p => ({ ...p, rank: '✘', type: 'expelled', score: '-', duration: '-', class: 'Expelled' }))];
-
-        function toggleModal(id) {
-            const el = document.getElementById(id);
-            el.style.display = (el.style.display === 'flex') ? 'none' : 'flex';
-        }
-
-        function handleLogin() {
-            const email = document.getElementById('emailInput').value;
-            const pass = document.getElementById('passInput').value;
-            if(email === ADMIN_EMAIL && pass === ADMIN_PASS) {
-                isAdmin = true;
-                document.getElementById('adminStatus').textContent = "Admin Mode Active";
-                document.getElementById('adminStatus').style.color = "#22c55e";
-                toggleModal('loginModal');
-                renderTable(fullList);
-            } else { alert("ভুল ইমেইল বা পাসওয়ার্ড"); }
+        function parseTime(t) {
+            if (!t) return 99999;
+            const m = t.match(/(\d+)m/) ? parseInt(t.match(/(\d+)m/)[1]) : 0;
+            const s = t.match(/(\d+)s/) ? parseInt(t.match(/(\d+)s/)[1]) : 0;
+            return m * 60 + s;
         }
 
         function renderTable(data) {
-            const container = document.getElementById('leaderboardRows');
-            container.innerHTML = '';
-            document.getElementById('statTotal').textContent = data.filter(i => i.type === 'merit').length;
-            document.getElementById('statExpelled').textContent = data.filter(i => i.type === 'expelled').length;
-
-            data.forEach(item => {
-                let rowClass = item.rank <= 3 && item.type === 'merit' ? 'rank-top-3' : '';
-                if(item.type === 'expelled') rowClass = 'rank-expelled';
-
-                const contactCell = isAdmin ? `
-                    <td class="p-5 text-center force-one-line">
-                        <div class="flex justify-center gap-3">
-                            <a href="tel:${item.phone}" class="text-blue-400">কল</a>
-                            <a href="https://wa.me/88${item.phone}" class="text-green-500">WA</a>
-                        </div>
-                    </td>` : '';
-
-                container.innerHTML += `
-                    <tr class="${rowClass} border-b border-white/5 transition-colors group">
-                        <td class="p-5 font-bold text-lg force-one-line">${item.rank === 1 ? '🥇' : item.rank === 2 ? '🥈' : item.rank === 3 ? '🥉' : item.rank}</td>
-                        <td class="p-5 force-one-line">
-                            <div class="text-white font-semibold">${item.name}</div>
-                            <div class="text-[9px] text-gray-500 uppercase">${item.class}</div>
-                        </td>
-                        <td class="p-5 text-sm text-gray-400 force-one-line">${item.inst}</td>
-                        <td class="p-5 text-center font-bold text-yellow-500 force-one-line">${item.score}</td>
-                        <td class="p-5 text-center text-sm text-gray-500 force-one-line">${item.duration}</td>
-                        <td class="p-5 text-center force-one-line">
-                            <span class="px-3 py-1 rounded-full text-[9px] font-bold ${item.type === 'expelled' ? 'bg-red-500/20 text-red-500' : 'bg-green-500/20 text-green-500'}">
-                                ${item.type === 'expelled' ? 'বহিষ্কৃত' : 'সফল'}
-                            </span>
-                        </td>
-                        ${contactCell}
-                    </tr>`;
-<!-- 
-  নির্দেশনা: 
-  ১. এই কোডটি আপনার HTML ফাইলের </table> ট্যাগ শেষ হওয়ার ঠিক নিচে পেস্ট করুন। 
-  ২. যদি স্টাইল না পায়, তবে নিশ্চিত করুন আপনার ফাইলে Tailwind CSS বা এই স্টাইলগুলো আছে।
--->
-
-<div style="margin-top: 40px; padding: 15px; font-family: 'Hind Siliguri', sans-serif;">
-    <div style="display: flex; align-items: center; gap: 10px; color: #ef4444; margin-bottom: 15px;">
-        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="17" x2="22" y1="8" y2="13"/><line x1="22" x2="17" y1="8" y2="13"/></svg>
-        <h2 style="font-size: 16px; font-weight: bold; text-transform: uppercase;">সম্মানিত অসদুপায় অবলম্বনকারী গণ (এক্সপেইল্ড লিস্ট)</h2>
-    </div>
-
-    <div style="overflow-x: auto; border: 1px solid rgba(239, 68, 68, 0.2); border-radius: 8px; background: rgba(239, 68, 68, 0.05);">
-        <table style="width: 100%; border-collapse: collapse; white-space: nowrap; font-size: 13px; color: #d1d5db;">
-            <thead>
-                <tr style="background: rgba(239, 68, 68, 0.1); color: #f87171; text-align: left; border-bottom: 1px solid rgba(239, 68, 68, 0.2);">
-                    <th style="padding: 12px 15px;">ক্র: নং</th>
-                    <th style="padding: 12px 15px;">নাম</th>
-                    <th style="padding: 12px 15px;">প্রতিষ্ঠান</th>
-                    <th style="padding: 12px 15px;">অযোগ্যতার কারণ</th>
-                    <th style="padding: 12px 15px; text-align: center;">স্ট্যাটাস</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.05);">
-                    <td style="padding: 12px 15px;">০১</td>
-                    <td style="padding: 12px 15px; color: #fca5a5; font-weight: bold;">মাহমুদা আক্তার</td>
-                    <td style="padding: 12px 15px;">মেহেরপুর সরকারি মহিলা কলেজ</td>
-                    <td style="padding: 12px 15px; color: #ef4444;">Expelled for Cheating</td>
-                    <td style="padding: 12px 15px; text-align: center; color: #7f1d1d; font-weight: bold;">EXPELLED</td>
-                </tr>
-                <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.05);">
-                    <td style="padding: 12px 15px;">০২</td>
-                    <td style="padding: 12px 15px; color: #fca5a5; font-weight: bold;">মোঃ ফাহিম</td>
-                    <td style="padding: 12px 15px;">মেহেরপুর পৌর ডিগ্রি কলেজ</td>
-                    <td style="padding: 12px 15px; color: #ef4444;">Expelled for Cheating</td>
-                    <td style="padding: 12px 15px; text-align: center; color: #7f1d1d; font-weight: bold;">EXPELLED</td>
-                </tr>
-                <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.05);">
-                    <td style="padding: 12px 15px;">০৩</td>
-                    <td style="padding: 12px 15px; color: #fca5a5; font-weight: bold;">হৃদয় আহমেদ</td>
-                    <td style="padding: 12px 15px;">পিরোজপুর দাখিল মাদ্রাসা</td>
-                    <td style="padding: 12px 15px; color: #ef4444;">Expelled for Cheating</td>
-                    <td style="padding: 12px 15px; text-align: center; color: #7f1d1d; font-weight: bold;">EXPELLED</td>
-                </tr>
-                <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.05);">
-                    <td style="padding: 12px 15px;">০৪</td>
-                    <td style="padding: 12px 15px; color: #fca5a5; font-weight: bold;">মোঃ আলিফ খাঁন</td>
-                    <td style="padding: 12px 15px;">মেহেরপুর সরকারি কলেজ</td>
-                    <td style="padding: 12px 15px; color: #ef4444;">Expelled for Cheating</td>
-                    <td style="padding: 12px 15px; text-align: center; color: #7f1d1d; font-weight: bold;">EXPELLED</td>
-                </tr>
-                <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.05);">
-                    <td style="padding: 12px 15px;">০৫</td>
-                    <td style="padding: 12px 15px; color: #fca5a5; font-weight: bold;">মাহফুজুর রহমান</td>
-                    <td style="padding: 12px 15px;">মোমিনপুর হাই স্কুল</td>
-                    <td style="padding: 12px 15px; color: #ef4444;">Expelled for Cheating</td>
-                    <td style="padding: 12px 15px; text-align: center; color: #7f1d1d; font-weight: bold;">EXPELLED</td>
-                </tr>
-                <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.05);">
-                    <td style="padding: 12px 15px;">০৬</td>
-                    <td style="padding: 12px 15px; color: #fca5a5; font-weight: bold;">ইফরাত হোসেন ইফরা</td>
-                    <td style="padding: 12px 15px;">আমঝুপি গার্লস হাই স্কুল</td>
-                    <td style="padding: 12px 15px; color: #ef4444;">Expelled for Cheating</td>
-                    <td style="padding: 12px 15px; text-align: center; color: #7f1d1d; font-weight: bold;">EXPELLED</td>
-                </tr>
-                <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.05);">
-                    <td style="padding: 12px 15px;">০৭</td>
-                    <td style="padding: 12px 15px; color: #fca5a5; font-weight: bold;">খালিদ হাসান মুন্না</td>
-                    <td style="padding: 12px 15px;">মেহেরপুর আলিয়া মাদ্রাসা</td>
-                    <td style="padding: 12px 15px; color: #ef4444;">Expelled for Cheating</td>
-                    <td style="padding: 12px 15px; text-align: center; color: #7f1d1d; font-weight: bold;">EXPELLED</td>
-                </tr>
-                <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.05);">
-                    <td style="padding: 12px 15px;">০৮</td>
-                    <td style="padding: 12px 15px; color: #fca5a5; font-weight: bold;">মোঃ ওয়াসিমুল জাওয়াদ</td>
-                    <td style="padding: 12px 15px;">নৌবাহিনী কলেজ</td>
-                    <td style="padding: 12px 15px; color: #ef4444;">Expelled for Cheating</td>
-                    <td style="padding: 12px 15px; text-align: center; color: #7f1d1d; font-weight: bold;">EXPELLED</td>
-                </tr>
-                <tr>
-                    <td style="padding: 12px 15px;">০৯</td>
-                    <td style="padding: 12px 15px; color: #fca5a5; font-weight: bold;">মোঃ শফিকুর রহমান</td>
-                    <td style="padding: 12px 15px;">মেহেরপুর কামিল মাদ্রাসা</td>
-                    <td style="padding: 12px 15px; color: #ef4444;">Expelled for Double Attempt</td>
-                    <td style="padding: 12px 15px; text-align: center; color: #7f1d1d; font-weight: bold;">EXPELLED</td>
-                </tr>
-            </tbody>
-        </table>
+            const body = document.getElementById('tableBody');
+            body.innerHTML = '';
+            
+            // Sort data: Score Desc, then Time Asc
+            const sortedData = [...data].sort((a, b) => {
+                const scoreA = parseInt(a.score.split(' / ')[0]);
+                const scoreB = parseInt(b.score.split(' / ')[0]);
+                if (scoreB !== scoreA) return scoreB - scoreA;
+                return parseTime(a.duration) - parseTime(b.duration);
             });
-            document.querySelectorAll('.admin-col').forEach(h => h.classList.toggle('hidden', !isAdmin));
+
+            sortedData.forEach((p, idx) => {
+                const rank = idx + 1;
+                const row = document.createElement('tr');
+                row.className = "hover:bg-white/5 transition-all";
+                
+                const phoneDisplay = isAdmin ? p.phone : "01•••••••••";
+                const emailDisplay = isAdmin ? p.email : "••••••••••••@gmail.com";
+                const actionBtn = isAdmin ? `
+                    <td class="px-4 py-3 text-center">
+                        <div class="flex gap-2 justify-center">
+                            <a href="tel:${p.phone}" class="p-1.5 bg-blue-500/20 text-blue-400 rounded"><i class="fa-solid fa-phone text-[10px]"></i></a>
+                            <a href="https://wa.me/88${p.phone}" target="_blank" class="p-1.5 bg-emerald-500/20 text-emerald-400 rounded"><i class="fa-brands fa-whatsapp text-[10px]"></i></a>
+                        </div>
+                    </td>
+                ` : '';
+
+                row.innerHTML = `
+                    <td class="px-4 py-3 font-bold ${rank <= 3 ? 'text-amber-500' : 'text-zinc-600'}">${rank}</td>
+                    <td class="px-4 py-3 font-semibold text-white">${p.name}</td>
+                    <td class="px-4 py-3 text-zinc-500">${emailDisplay}</td>
+                    <td class="px-4 py-3">${p.class}</td>
+                    <td class="px-4 py-3 font-mono text-zinc-400">${p.duration}</td>
+                    <td class="px-4 py-3 text-zinc-400">${p.inst}</td>
+                    <td class="px-4 py-3 font-mono">${phoneDisplay}</td>
+                    <td class="px-4 py-3 text-center font-black text-amber-500 bg-amber-500/5">${p.score}</td>
+                    <td class="px-4 py-3 text-emerald-500"><i class="fa-solid fa-check-circle mr-1"></i> ${p.status}</td>
+                    ${actionBtn}
+                `;
+                body.appendChild(row);
+            });
+
+            document.getElementById('participantCount').innerText = sortedData.length;
         }
 
-        function filterResults() {
-            const q = document.getElementById('searchInput').value.toLowerCase();
-            renderTable(fullList.filter(i => i.name.toLowerCase().includes(q) || i.inst.toLowerCase().includes(q)));
+        function searchTable() {
+            const term = document.getElementById('searchInput').value.toLowerCase();
+            const filtered = rawParticipants.filter(p => 
+                p.name.toLowerCase().includes(term) || 
+                p.inst.toLowerCase().includes(term)
+            );
+            renderTable(filtered);
         }
 
-        window.onload = () => renderTable(fullList);
+        function toggleLogin() {
+            const modal = document.getElementById('loginModal');
+            modal.classList.toggle('hidden');
+        }
+
+        function validateAdmin() {
+            const pass = document.getElementById('adminPass').value;
+            if (pass === "bics2026") {
+                isAdmin = true;
+                toggleLogin();
+                // Add Admin Header
+                if(!document.getElementById('adminHeader')){
+                    const headerRow = document.querySelector('#mainTable thead tr');
+                    const th = document.createElement('th');
+                    th.id = "adminHeader";
+                    th.className = "px-4 py-3 text-center";
+                    th.innerText = "Action";
+                    headerRow.appendChild(th);
+                }
+                renderTable(rawParticipants);
+            } else {
+                alert("ভুল পাসওয়ার্ড!");
+            }
+        }
+
+        // Initial Load
+        window.onload = () => renderTable(rawParticipants);
     </script>
 </body>
 </html>

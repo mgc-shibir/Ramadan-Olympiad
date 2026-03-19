@@ -3,163 +3,150 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>রমজান অলিম্পিয়াড ২০২৬ | রেজাল্ট ও সনদ</title>
+    <title>রমজান অলিম্পিয়াড ২০২৬ - সনদ পোর্টাল</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@300;400;600;700&display=swap" rel="stylesheet">
     <style>
         body {
             font-family: 'Hind Siliguri', sans-serif;
-            background: #050505;
-            color: #e2e8f0;
-            overflow-x: hidden;
+            background-color: #0f172a;
+            color: #f8fafc;
         }
-        .bg-glow {
-            background: radial-gradient(circle at 50% -20%, #1e3a8a 0%, #000 70%);
-        }
-        .glass {
-            background: rgba(255, 255, 255, 0.03);
-            backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-        /* সার্টিফিকেট ডিজাইন */
-        #cert-capture {
-            width: 1000px;
-            height: 707px;
+        
+        /* সার্টিফিকেট কন্টেইনার ফিক্সড সাইজ */
+        #certificate-wrapper {
+            width: 2000px;
+            height: 1414px;
             position: relative;
-            background: url('https://img.freepik.com/free-vector/professional-certificate-template_23-2148911674.jpg') no-repeat center center;
+            background-image: url('https://mgc-shibir.github.io/Ramadan-Olympiad/iz-certicificate_20260320_005914_0000.png');
             background-size: cover;
-            display: none; /* শুধুমাত্র ডাউনলোডের সময় দেখাবে */
+            background-position: center;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            flex-shrink: 0;
         }
-        .cert-content {
-            position: absolute;
-            width: 100%;
-            text-align: center;
-            color: #ffffff;
-            /* আপনার চাহিদা অনুযায়ী সাদা লেখা ও ড্রপ শ্যাডো */
-            text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.9), 0 0 15px rgba(0, 0, 0, 0.5);
-            font-weight: 700;
-        }
-        .cert-name { top: 44%; font-size: 56px; letter-spacing: 1px; }
-        .cert-body { top: 58%; font-size: 22px; line-height: 1.6; padding: 0 100px; font-weight: 500; }
-        .cert-footer { bottom: 40px; font-size: 14px; opacity: 0.8; }
 
-        .btn-shine {
-            background: linear-gradient(45deg, #fbbf24, #f59e0b);
-            box-shadow: 0 0 20px rgba(245, 158, 11, 0.3);
-            transition: 0.3s;
+        /* মার্জিন এবং কন্টেন্ট এরিয়া */
+        .content-area {
+            margin-top: 314px;
+            margin-bottom: 314px;
+            margin-left: 100px;
+            margin-right: 100px;
+            height: calc(1414px - 628px);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            color: white;
+            text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.8), 0 0 15px rgba(0, 0, 0, 0.5);
         }
-        .btn-shine:hover {
-            transform: scale(1.02);
-            box-shadow: 0 0 30px rgba(245, 158, 11, 0.5);
+
+        .small-text { font-size: 38px; line-height: 1.6; font-weight: 400; }
+        .large-name { font-size: 95px; font-weight: 700; margin: 30px 0; color: #ffffff; }
+
+        /* প্রিভিউ এর জন্য স্কেলিং */
+        .preview-scale {
+            transform: scale(0.4);
+            transform-origin: top center;
         }
+        @media (max-width: 850px) {
+            .preview-scale { transform: scale(0.2); }
+            .preview-container { height: 350px; }
+        }
+        .preview-container {
+            height: 650px;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+        }
+
+        /* কাস্টম স্ক্রলবার */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
     </style>
 </head>
-<body class="bg-glow min-h-screen">
+<body class="p-4 md:p-10">
 
-    <div class="max-w-5xl mx-auto px-4 py-12">
+    <div class="max-w-7xl mx-auto">
         <!-- Header -->
-        <div class="text-center mb-16">
-            <div class="inline-block p-2 px-4 bg-amber-500/10 border border-amber-500/20 rounded-full mb-4">
-                <span class="text-amber-500 font-bold tracking-widest text-xs uppercase">Official Result Portal</span>
-            </div>
-            <h1 class="text-5xl md:text-7xl font-black mb-6 text-white tracking-tight">
-                রমজান অলিম্পিয়াড <span class="text-amber-500">২০২৬</span>
-            </h1>
-            <p class="text-zinc-400 text-lg md:text-xl max-w-2xl mx-auto leading-relaxed">
-                আপনার মেধা ও পরিশ্রমের স্বীকৃতি স্বরূপ ডিজিটাল সার্টিফিকেটটি সংগ্রহ করুন। নিচে আপনার ফোন নম্বর প্রদান করে অনুসন্ধান করুন।
-            </p>
+        <div class="text-center mb-10">
+            <h1 class="text-4xl font-bold text-amber-500 mb-2">রমজান অলিম্পিয়াড ২০২৬</h1>
+            <p class="text-slate-400">আয়োজনে — ইসলামী ছাত্রশিবির, মেহেরপুর সরকারি কলেজ</p>
         </div>
 
-        <!-- Search Box -->
-        <div class="glass p-8 md:p-12 rounded-3xl shadow-2xl max-w-3xl mx-auto mb-12 border-t border-white/20">
-            <div class="flex flex-col md:flex-row gap-4">
-                <div class="relative flex-1">
-                    <input type="text" id="userInput" placeholder="আপনার ফোন নম্বর দিন (যেমন: 017...)" 
-                        class="w-full bg-black/40 border border-white/10 rounded-2xl px-6 py-5 text-xl text-white focus:outline-none focus:border-amber-500 transition-all placeholder:text-zinc-600">
-                </div>
-                <button onclick="findResult()" class="btn-shine text-black font-bold px-10 py-5 rounded-2xl text-lg">
-                    ফলাফল খুঁজুন
-                </button>
-            </div>
-            <p id="errorMsg" class="text-red-400 mt-4 text-center hidden">দুঃখিত, এই নম্বরে কোনো তথ্য পাওয়া যায়নি। সঠিক নম্বরটি পুনরায় চেষ্টা করুন।</p>
-        </div>
-
-        <!-- Result Display Area -->
-        <div id="resultBox" class="hidden animate-in fade-in slide-in-from-bottom-10 duration-700">
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <!-- Left: Profile Info -->
-                <div class="md:col-span-2 glass rounded-3xl p-8 border-l-4 border-l-amber-500">
-                    <div class="flex items-center gap-6 mb-8">
-                        <div class="h-20 w-20 rounded-2xl bg-amber-500/20 flex items-center justify-center text-3xl">👤</div>
-                        <div>
-                            <h2 id="resName" class="text-4xl font-bold text-white mb-1">---</h2>
-                            <p id="resInst" class="text-zinc-400">---</p>
-                        </div>
-                    </div>
-                    
-                    <div class="grid grid-cols-2 gap-6">
-                        <div class="p-4 bg-white/5 rounded-2xl">
-                            <p class="text-xs text-zinc-500 uppercase font-bold mb-1">শ্রেণী/গ্রুপ</p>
-                            <p id="resClass" class="text-xl font-semibold">---</p>
-                        </div>
-                        <div class="p-4 bg-white/5 rounded-2xl">
-                            <p class="text-xs text-zinc-500 uppercase font-bold mb-1">প্রাপ্ত স্কোর</p>
-                            <p id="resScore" class="text-xl font-bold text-amber-500">---</p>
-                        </div>
-                        <div class="p-4 bg-white/5 rounded-2xl">
-                            <p class="text-xs text-zinc-500 uppercase font-bold mb-1">পরীক্ষার সময়</p>
-                            <p id="resDuration" class="text-xl font-semibold">---</p>
-                        </div>
-                        <div class="p-4 bg-white/5 rounded-2xl">
-                            <p class="text-xs text-zinc-500 uppercase font-bold mb-1">স্ট্যাটাস</p>
-                            <p id="resStatus" class="text-xl font-semibold text-emerald-400">---</p>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Right: Download Action -->
-                <div class="glass rounded-3xl p-8 flex flex-col items-center justify-center text-center">
-                    <div class="w-16 h-16 bg-emerald-500/20 rounded-full flex items-center justify-center text-emerald-500 mb-6">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                    </div>
-                    <h3 class="text-xl font-bold mb-2">অভিনন্দন!</h3>
-                    <p class="text-zinc-500 text-sm mb-8">আপনার সাফল্যের স্বীকৃতি স্বরূপ ডিজিটাল সনদটি এখনই ডাউনলোড করে নিন।</p>
-                    <button onclick="downloadCert()" class="w-full bg-white text-black font-bold py-4 rounded-xl hover:bg-zinc-200 transition-colors flex items-center justify-center gap-2">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                            <path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd" />
-                        </svg>
-                        ডাউনলোড সনদ
-                    </button>
+        <!-- Toolbar & Search -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <div class="md:col-span-2 relative">
+                <input type="text" id="searchInput" onkeyup="searchProfiles()" 
+                    placeholder="আপনার নাম বা ফোন নম্বর দিয়ে সার্চ করুন..." 
+                    class="w-full bg-slate-800 border border-slate-700 rounded-2xl px-6 py-4 focus:outline-none focus:ring-2 focus:ring-amber-500 transition shadow-xl">
+                
+                <!-- সার্চ রেজাল্ট পপআপ -->
+                <div id="searchPopup" class="absolute w-full mt-2 bg-slate-800 border border-slate-700 rounded-xl shadow-2xl z-50 hidden max-h-60 overflow-y-auto">
+                    <!-- রেজাল্ট আসবে এখানে -->
                 </div>
             </div>
+            <div class="flex gap-2">
+                <button onclick="downloadPNG()" id="btnPng" disabled class="flex-1 bg-blue-600 hover:bg-blue-700 disabled:opacity-30 disabled:cursor-not-allowed text-white font-bold py-4 rounded-2xl transition">PNG ডাউনলোড</button>
+                <button onclick="downloadPDF()" id="btnPdf" disabled class="flex-1 bg-amber-600 hover:bg-amber-700 disabled:opacity-30 disabled:cursor-not-allowed text-white font-bold py-4 rounded-2xl transition">PDF ডাউনলোড</button>
+            </div>
         </div>
-    </div>
 
-    <!-- Hidden Certificate for Capture -->
-    <div id="cert-capture">
-        <div class="cert-content cert-name" id="c-name">নাম লোড হচ্ছে</div>
-        <div class="cert-content cert-body">
-            আমরা আনন্দের সাথে স্বীকৃতি দিচ্ছি যে, আপনি <span id="c-inst">প্রতিষ্ঠানের নাম</span> থেকে রমজান অলিম্পিয়াড ২০২৬-এ <span id="c-class">গ্রুপ</span> থেকে অংশগ্রহণ করে সফলভাবে <span id="c-score">স্কোর</span> অর্জন করেছেন। আপনার এই মেধা ও সৃজনশীলতা আমাদের অনুপ্রাণিত করে।
-        </div>
-        <div class="cert-content cert-footer">
-            Digital ID: RO26-BICS-<span id="c-id"></span> | Date: March 20, 2026
-        </div>
-    </div>
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <!-- Table View -->
+            <div class="bg-slate-800 rounded-3xl p-6 border border-slate-700 shadow-xl overflow-hidden">
+                <h3 class="text-xl font-bold mb-4 flex items-center gap-2">
+                    <span class="w-3 h-3 bg-green-500 rounded-full"></span> সকল অংশগ্রহণকারী
+                </h3>
+                <div class="overflow-x-auto max-h-[600px] overflow-y-auto pr-2">
+                    <table class="w-full text-left text-sm">
+                        <thead class="sticky top-0 bg-slate-800 text-amber-500">
+                            <tr>
+                                <th class="p-4 border-b border-slate-700">অবস্থান</th>
+                                <th class="p-4 border-b border-slate-700">নাম</th>
+                                <th class="p-4 border-b border-slate-700">স্কোর</th>
+                            </tr>
+                        </thead>
+                        <tbody id="leaderboardBody">
+                            <!-- JS will populate -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
 
-    <!-- Loader -->
-    <div id="loader" class="fixed inset-0 bg-black/90 hidden items-center justify-center z-50">
-        <div class="text-center">
-            <div class="w-16 h-16 border-4 border-amber-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-            <p class="text-white font-bold tracking-widest uppercase text-sm">Generating Your Premium Certificate...</p>
+            <!-- Preview View -->
+            <div class="bg-slate-900 rounded-3xl border border-slate-700 shadow-xl relative overflow-hidden flex flex-col items-center justify-center p-4">
+                <div id="placeholder" class="text-slate-500 text-center py-20">
+                    <svg class="w-20 h-20 mx-auto mb-4 opacity-20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                    সার্টিফিকেট প্রিভিউ দেখতে তালিকা থেকে কাউকে সিলেক্ট করুন
+                </div>
+
+                <div id="previewContainer" class="preview-container hidden w-full">
+                    <div class="preview-scale">
+                        <!-- REAL CERTIFICATE TEMPLATE START -->
+                        <div id="certificate-wrapper">
+                            <div class="content-area">
+                                <p class="small-text">এই মর্মে প্রদান করা হইতেসে যে, জনাব/জনাবা,</p>
+                                <h1 id="cName" class="large-name">রেদুয়ান আহমদ রাহি</h1>
+                                <p class="small-text" id="cDescription">
+                                    বাংলাদেশ ইসলামি ছাত্রশিবির, মেহেরপুর সরকারি কলেজ শাখা কর্তৃক ১৫-১৮ই রমজান ১৪৪৭ হিজরি তারিখে আয়োজিত রমাদান অলিম্পিয়াড ২০২৬ (অনলাইন) প্রতিযোগিতায় {প্রতিষ্ঠান} হতে {গ্রুপ} হইতে অংশগ্রহণ করিয়াছিলেন। উক্ত প্রতিযোগী {সময়} এর মধ্যে পরীক্ষা সম্পন্ন করিয়া {মার্ক} মার্ক অর্জন করিয়াছিলেন৷ আরো জানানো হচ্ছে যে, তিনি কৃতিত্বের সহিত উক্ত প্রতিযোগিতায় {অবস্থান} তম অবস্থান অধিকার করিয়াছেন। আমরা তাহার অদূর ভবিষ্যতের সাফল্য কামনা করি এবং সুস্বাস্থ্য ও দীর্ঘায়ু কামনা করি।
+                                </p>
+                            </div>
+                        </div>
+                        <!-- REAL CERTIFICATE TEMPLATE END -->
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
     <script>
-        // আপনার ফাইল থেকে নেওয়া সমস্ত ডেটা
-        const allData = [
+        // আপনার কাঁচা ডেটা এখানে বসান (এক্সেলে যেমন থাকে)
+        const rawData = [
   { name: "রেদুয়ান আহমদ রাহি", email: "reduanahmedrahi2008@gmail.com", class: "৬ষ্ঠ", duration: "13m 5s", inst: "মেহেরপুর টেকনিক্যাল স্কুল এন্ড কলেজ", phone: "01930192071", score: "47 / 50", status: "Normal Submission" },
   { name: "শাহলিনা তাবাসসুম রাহি", email: "shahlinatabassumrahi@gmail.com", class: "৬ষ্ঠ", duration: "5m 19s", inst: "মোহাম্মদপুর গার্লস কলেজ", phone: "01943932804", score: "43 / 50", status: "Normal Submission" },
   { name: "মোছা :মরিয়ম", email: "muskanjannat859807444@gmail.com", class: "একাদশ", duration: "8m 26s", inst: "মেহেরপুর সরকারি মহিলা কলেজ", phone: "01859807444", score: "49 / 50", status: "Normal Submission" },
@@ -300,67 +287,124 @@
   { name: "মোঃ হাসনাত জামান", email: "mdhasnatjaman382@gmail.com", class: "অন্যান্য", duration: "2m 57s", inst: "মেহেরপুর সরকারি কলেজ", phone: "01867266940", score: "50 / 50", status: "Normal Submission" }
 ];
 
-        let selectedStudent = null;
+        let sortedStudents = [];
 
-        function findResult() {
-            const val = document.getElementById('userInput').value.trim();
-            const error = document.getElementById('errorMsg');
-            const resBox = document.getElementById('resultBox');
+        // সময়কে সেকেন্ডে কনভার্ট করার ফাংশন (র‍্যাঙ্কিং এর জন্য)
+        function parseDuration(str) {
+            const m = str.match(/(\d+)m/);
+            const s = str.match(/(\d+)s/);
+            const minutes = m ? parseInt(m[1]) : 0;
+            const seconds = s ? parseInt(s[1]) : 0;
+            return (minutes * 60) + seconds;
+        }
 
-            // লাস্ট ১০ ডিজিট বা পূর্ণ নম্বর দিয়ে সার্চ
-            selectedStudent = allData.find(s => s.phone.includes(val) && val.length > 5);
-
-            if (selectedStudent) {
-                error.classList.add('hidden');
-                resBox.classList.remove('hidden');
-                
-                // তথ্য প্রদর্শন
-                document.getElementById('resName').innerText = selectedStudent.name;
-                document.getElementById('resInst').innerText = selectedStudent.inst;
-                document.getElementById('resClass').innerText = selectedStudent.class;
-                document.getElementById('resScore').innerText = selectedStudent.score;
-                document.getElementById('resDuration').innerText = selectedStudent.duration;
-                document.getElementById('resStatus').innerText = selectedStudent.status;
-
-                // সার্টিফিকেট প্রি-লোড
-                document.getElementById('c-name').innerText = selectedStudent.name;
-                document.getElementById('c-inst').innerText = selectedStudent.inst;
-                document.getElementById('c-class').innerText = selectedStudent.class;
-                document.getElementById('c-score').innerText = selectedStudent.score;
-                document.getElementById('c-id').innerText = Math.floor(10000 + Math.random() * 90000);
-
-                resBox.scrollIntoView({ behavior: 'smooth' });
+        // গ্রুপ ডিটেক্ট করার ফাংশন
+        function getGroup(className) {
+            if (className.includes("৬ষ্ঠ") || className.includes("৭ম") || className.includes("৮ম") || className.includes("৯ম") || className.includes("১০ম")) {
+                return "৬ষ্ঠ-১০ম বা সমমান গ্রুপ";
+            } else if (className.includes("একাদশ") || className.includes("দ্বাদশ") || className.includes("১১") || className.includes("১২")) {
+                return "১১শ-১২শ বা সমমান গ্রুপ";
             } else {
-                resBox.classList.add('hidden');
-                error.classList.remove('hidden');
+                return "অনার্স-মাস্টার্স বা সমমান গ্রুপ";
             }
         }
 
-        function downloadCert() {
-            if (!selectedStudent) return;
-            
-            const loader = document.getElementById('loader');
-            const capture = document.getElementById('cert-capture');
-            
-            loader.style.display = 'flex';
-            capture.style.display = 'block';
+        // ডাটা প্রসেসিং ও র‍্যাঙ্কিং
+        function processData() {
+            // ১. স্কোর অনুযায়ী (বড় থেকে ছোট), ২. সময় অনুযায়ী (ছোট থেকে বড়) সর্ট করা
+            sortedStudents = [...rawData].sort((a, b) => {
+                if (parseInt(b.score) !== parseInt(a.score)) {
+                    return parseInt(b.score) - parseInt(a.score);
+                }
+                return parseDuration(a.duration) - parseDuration(b.duration);
+            }).map((s, index) => ({ ...s, position: index + 1 }));
 
-            setTimeout(() => {
-                html2canvas(capture, {
-                    scale: 2,
-                    useCORS: true,
-                    backgroundColor: null
-                }).then(canvas => {
-                    const link = document.createElement('a');
-                    link.download = `RO26_Cert_${selectedStudent.name}.png`;
-                    link.href = canvas.toDataURL('image/png');
-                    link.click();
-                    
-                    loader.style.display = 'none';
-                    capture.style.display = 'none';
-                });
-            }, 500);
+            renderLeaderboard(sortedStudents);
         }
+
+        function renderLeaderboard(data) {
+            const body = document.getElementById('leaderboardBody');
+            body.innerHTML = data.map(s => `
+                <tr onclick="selectStudent('${s.phone}')" class="hover:bg-slate-700/50 cursor-pointer border-b border-slate-700/50 transition">
+                    <td class="p-4 font-bold text-amber-500">${s.position} তম</td>
+                    <td class="p-4 font-semibold">${s.name}</td>
+                    <td class="p-4 text-xs opacity-70">${s.score} / ${s.total}</td>
+                </tr>
+            `).join('');
+        }
+
+        function searchProfiles() {
+            const query = document.getElementById('searchInput').value.toLowerCase();
+            const popup = document.getElementById('searchPopup');
+            
+            if (!query) { popup.classList.add('hidden'); return; }
+
+            const filtered = sortedStudents.filter(s => 
+                s.name.toLowerCase().includes(query) || s.phone.includes(query)
+            );
+
+            if (filtered.length > 0) {
+                popup.innerHTML = filtered.map(s => `
+                    <div onclick="selectStudent('${s.phone}')" class="p-4 hover:bg-slate-700 border-b border-slate-700 cursor-pointer">
+                        <div class="font-bold">${s.name}</div>
+                        <div class="text-xs text-slate-400">${s.institution} | ${s.phone}</div>
+                    </div>
+                `).join('');
+                popup.classList.remove('hidden');
+            } else {
+                popup.innerHTML = `<div class="p-4 text-slate-500 text-sm">কোনো তথ্য পাওয়া যায়নি</div>`;
+                popup.classList.remove('hidden');
+            }
+        }
+
+        function selectStudent(phone) {
+            const s = sortedStudents.find(student => student.phone === phone);
+            if (!s) return;
+
+            document.getElementById('placeholder').classList.add('hidden');
+            document.getElementById('previewContainer').classList.remove('hidden');
+            document.getElementById('searchPopup').classList.add('hidden');
+            document.getElementById('searchInput').value = s.name;
+            
+            // বাটন এনাবেল করা
+            document.getElementById('btnPng').disabled = false;
+            document.getElementById('btnPdf').disabled = false;
+
+            // সার্টিফিকেটে ডাটা বসানো
+            document.getElementById('cName').innerText = s.name;
+            
+            // সময়ের ফরম্যাট (মিনিট ও সেকেন্ড আলাদা করা)
+            const dur = s.duration.replace('m', ' মিনিট').replace('s', ' সেকেন্ড');
+            const group = getGroup(s.class);
+            
+            const desc = `বাংলাদেশ ইসলামি ছাত্রশিবির, মেহেরপুর সরকারি কলেজ শাখা কর্তৃক ১৫-১৮ই রমজান ১৪৪৭ হিজরি তারিখে আয়োজিত রমাদান অলিম্পিয়াড ২০২৬ (অনলাইন) প্রতিযোগিতায় ${s.institution} হতে ${group} হইতে অংশগ্রহণ করিয়াছিলেন। উক্ত প্রতিযোগী ${dur} এর মধ্যে পরীক্ষা সম্পন্ন করিয়া ${s.score} মার্ক অর্জন করিয়াছিলেন৷ আরো জানানো হচ্ছে যে, তিনি কৃতিত্বের সহিত উক্ত প্রতিযোগিতায় ${s.position} তম অবস্থান অধিকার করিয়াছেন। আমরা তাহার অদূর ভবিষ্যতের সাফল্য কামনা করি এবং সুস্বাস্থ্য ও দীর্ঘায়ু কামনা করি।`;
+            
+            document.getElementById('cDescription').innerText = desc;
+        }
+
+        async function downloadPNG() {
+            const cert = document.getElementById('certificate-wrapper');
+            const name = document.getElementById('cName').innerText;
+            const canvas = await html2canvas(cert, { scale: 1 });
+            const link = document.createElement('a');
+            link.download = `Ramadan_Olympiad_Certificate_${name}.png`;
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+        }
+
+        async function downloadPDF() {
+            const { jsPDF } = window.jspdf;
+            const cert = document.getElementById('certificate-wrapper');
+            const name = document.getElementById('cName').innerText;
+            const canvas = await html2canvas(cert, { scale: 1 });
+            const imgData = canvas.toDataURL('image/png');
+            
+            const pdf = new jsPDF('l', 'px', [2000, 1414]);
+            pdf.addImage(imgData, 'PNG', 0, 0, 2000, 1414);
+            pdf.save(`Ramadan_Olympiad_Certificate_${name}.pdf`);
+        }
+
+        window.onload = processData;
     </script>
 </body>
-                                    </html>
+    </html>

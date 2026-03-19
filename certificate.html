@@ -7,137 +7,157 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         body {
             font-family: 'Hind Siliguri', sans-serif;
-            background-color: #0f172a;
+            background-color: #020617;
             color: #f8fafc;
         }
         
-        /* সার্টিফিকেট কন্টেইনার ফিক্সড সাইজ */
+        /* সার্টিফিকেট কন্টেইনার ফিক্সড সাইজ (2000x1414) */
         #certificate-wrapper {
             width: 2000px;
             height: 1414px;
             position: relative;
             background-image: url('https://mgc-shibir.github.io/Ramadan-Olympiad/iz-certicificate_20260320_005914_0000.png');
-            background-size: cover;
-            background-position: center;
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
+            background-size: 100% 100%;
+            background-repeat: no-repeat;
+            display: block;
             flex-shrink: 0;
+            overflow: hidden;
         }
 
-        /* মার্জিন এবং কন্টেন্ট এরিয়া */
+        /* কন্টেন্ট এরিয়া - নির্দেশিত মার্জিন অনুযায়ী */
         .content-area {
-            margin-top: 314px;
-            margin-bottom: 314px;
-            margin-left: 100px;
-            margin-right: 100px;
-            height: calc(1414px - 628px);
+            position: absolute;
+            top: 314px;
+            left: 100px;
+            right: 100px;
+            bottom: 314px;
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
             text-align: center;
-            color: white;
-            text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.8), 0 0 15px rgba(0, 0, 0, 0.5);
+            color: #ffffff;
+            /* শ্যাডো ইফেক্ট যাতে ব্যাকগ্রাউন্ডের ওপর ফুটে ওঠে */
+            text-shadow: 4px 4px 10px rgba(0, 0, 0, 0.9), 0px 0px 20px rgba(0, 0, 0, 0.6);
         }
 
-        .small-text { font-size: 38px; line-height: 1.6; font-weight: 400; }
-        .large-name { font-size: 95px; font-weight: 700; margin: 30px 0; color: #ffffff; }
+        .small-text { 
+            font-size: 42px; 
+            line-height: 1.8; 
+            font-weight: 500; 
+            max-width: 1700px;
+            word-spacing: 5px;
+        }
 
-        /* প্রিভিউ এর জন্য স্কেলিং */
-        .preview-scale {
-            transform: scale(0.4);
-            transform-origin: top center;
+        .large-name { 
+            font-size: 110px; 
+            font-weight: 700; 
+            margin: 40px 0; 
+            color: #ffffff;
+            letter-spacing: 2px;
         }
-        @media (max-width: 850px) {
-            .preview-scale { transform: scale(0.2); }
-            .preview-container { height: 350px; }
-        }
-        .preview-container {
-            height: 650px;
-            overflow: hidden;
+
+        /* ব্রাউজারে দেখার জন্য প্রিভিউ স্কেল */
+        .preview-wrapper {
+            width: 100%;
             display: flex;
             justify-content: center;
+            background: #1e293b;
+            padding: 20px;
+            border-radius: 20px;
+            overflow: hidden;
+        }
+
+        #preview-scaler {
+            transform: scale(0.35); /* স্ক্রিন অনুযায়ী অ্যাডজাস্ট হবে */
+            transform-origin: top center;
+            margin-bottom: -900px; /* স্কেলিং এর কারণে বাড়তি স্পেস কমাতে */
+        }
+
+        @media (max-width: 1024px) {
+            #preview-scaler { transform: scale(0.25); margin-bottom: -1050px; }
+        }
+
+        @media (max-width: 640px) {
+            #preview-scaler { transform: scale(0.15); margin-bottom: -1200px; }
         }
 
         /* কাস্টম স্ক্রলবার */
         ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb { background: #475569; border-radius: 10px; }
     </style>
 </head>
-<body class="p-4 md:p-10">
+<body class="py-10 px-4 sm:px-10">
 
     <div class="max-w-7xl mx-auto">
-        <!-- Header -->
-        <div class="text-center mb-10">
-            <h1 class="text-4xl font-bold text-amber-500 mb-2">রমজান অলিম্পিয়াড ২০২৬</h1>
-            <p class="text-slate-400">আয়োজনে — ইসলামী ছাত্রশিবির, মেহেরপুর সরকারি কলেজ</p>
-        </div>
+        <header class="text-center mb-12">
+            <h1 class="text-5xl font-extrabold text-amber-500 mb-3">রমজান অলিম্পিয়াড ২০২৬</h1>
+            <p class="text-slate-400 text-lg uppercase tracking-widest">Official Verification & Certificate Portal</p>
+        </header>
 
-        <!-- Toolbar & Search -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-            <div class="md:col-span-2 relative">
-                <input type="text" id="searchInput" onkeyup="searchProfiles()" 
-                    placeholder="আপনার নাম বা ফোন নম্বর দিয়ে সার্চ করুন..." 
-                    class="w-full bg-slate-800 border border-slate-700 rounded-2xl px-6 py-4 focus:outline-none focus:ring-2 focus:ring-amber-500 transition shadow-xl">
-                
-                <!-- সার্চ রেজাল্ট পপআপ -->
-                <div id="searchPopup" class="absolute w-full mt-2 bg-slate-800 border border-slate-700 rounded-xl shadow-2xl z-50 hidden max-h-60 overflow-y-auto">
-                    <!-- রেজাল্ট আসবে এখানে -->
-                </div>
-            </div>
-            <div class="flex gap-2">
-                <button onclick="downloadPNG()" id="btnPng" disabled class="flex-1 bg-blue-600 hover:bg-blue-700 disabled:opacity-30 disabled:cursor-not-allowed text-white font-bold py-4 rounded-2xl transition">PNG ডাউনলোড</button>
-                <button onclick="downloadPDF()" id="btnPdf" disabled class="flex-1 bg-amber-600 hover:bg-amber-700 disabled:opacity-30 disabled:cursor-not-allowed text-white font-bold py-4 rounded-2xl transition">PDF ডাউনলোড</button>
+        <!-- Search Bar -->
+        <div class="max-w-3xl mx-auto mb-10 relative">
+            <input type="text" id="searchInput" onkeyup="searchProfiles()" 
+                placeholder="আপনার নাম বা ফোন নম্বর লিখুন..." 
+                class="w-full bg-slate-900/50 border-2 border-slate-700 rounded-3xl px-8 py-5 text-xl focus:outline-none focus:border-amber-500 transition shadow-2xl backdrop-blur-md">
+            
+            <!-- ড্রপডাউন সার্চ রেজাল্ট -->
+            <div id="searchPopup" class="absolute w-full mt-3 bg-slate-800 border border-slate-700 rounded-2xl shadow-2xl z-50 hidden max-h-72 overflow-y-auto">
+                <!-- Results -->
             </div>
         </div>
 
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            <!-- Table View -->
-            <div class="bg-slate-800 rounded-3xl p-6 border border-slate-700 shadow-xl overflow-hidden">
-                <h3 class="text-xl font-bold mb-4 flex items-center gap-2">
-                    <span class="w-3 h-3 bg-green-500 rounded-full"></span> সকল অংশগ্রহণকারী
+        <div class="grid grid-cols-1 xl:grid-cols-12 gap-10">
+            <!-- Left Side: Table -->
+            <div class="xl:col-span-5 bg-slate-900/80 rounded-3xl p-6 border border-slate-800 shadow-inner">
+                <h3 class="text-xl font-bold text-slate-200 mb-4 flex items-center gap-3">
+                    <span class="w-3 h-3 bg-amber-500 rounded-full animate-pulse"></span> অংশ গ্রহণকারী তালিকা
                 </h3>
-                <div class="overflow-x-auto max-h-[600px] overflow-y-auto pr-2">
-                    <table class="w-full text-left text-sm">
-                        <thead class="sticky top-0 bg-slate-800 text-amber-500">
+                <div class="overflow-x-auto max-h-[600px] overflow-y-auto rounded-xl">
+                    <table class="w-full text-left">
+                        <thead class="sticky top-0 bg-slate-950 text-amber-400 z-10">
                             <tr>
-                                <th class="p-4 border-b border-slate-700">অবস্থান</th>
-                                <th class="p-4 border-b border-slate-700">নাম</th>
-                                <th class="p-4 border-b border-slate-700">স্কোর</th>
+                                <th class="p-4 font-bold text-center">র‍্যাঙ্ক</th>
+                                <th class="p-4 font-bold">নাম</th>
+                                <th class="p-4 font-bold text-right">স্কোর</th>
                             </tr>
                         </thead>
-                        <tbody id="leaderboardBody">
-                            <!-- JS will populate -->
+                        <tbody id="leaderboardBody" class="text-slate-300">
+                            <!-- JS loads here -->
                         </tbody>
                     </table>
                 </div>
             </div>
 
-            <!-- Preview View -->
-            <div class="bg-slate-900 rounded-3xl border border-slate-700 shadow-xl relative overflow-hidden flex flex-col items-center justify-center p-4">
-                <div id="placeholder" class="text-slate-500 text-center py-20">
-                    <svg class="w-20 h-20 mx-auto mb-4 opacity-20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
-                    সার্টিফিকেট প্রিভিউ দেখতে তালিকা থেকে কাউকে সিলেক্ট করুন
+            <!-- Right Side: Preview & Download -->
+            <div id="actionPanel" class="xl:col-span-7 flex flex-col gap-6">
+                <div id="placeholder" class="bg-slate-900/50 border-2 border-dashed border-slate-700 rounded-3xl h-[600px] flex flex-col items-center justify-center text-slate-500">
+                    <svg class="w-24 h-24 mb-4 opacity-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    <p class="text-lg">সার্টিফিকেট দেখতে কাউকে সিলেক্ট করুন</p>
                 </div>
 
-                <div id="previewContainer" class="preview-container hidden w-full">
-                    <div class="preview-scale">
-                        <!-- REAL CERTIFICATE TEMPLATE START -->
-                        <div id="certificate-wrapper">
-                            <div class="content-area">
-                                <p class="small-text">এই মর্মে প্রদান করা হইতেসে যে, জনাব/জনাবা,</p>
-                                <h1 id="cName" class="large-name">রেদুয়ান আহমদ রাহি</h1>
-                                <p class="small-text" id="cDescription">
-                                    বাংলাদেশ ইসলামি ছাত্রশিবির, মেহেরপুর সরকারি কলেজ শাখা কর্তৃক ১৫-১৮ই রমজান ১৪৪৭ হিজরি তারিখে আয়োজিত রমাদান অলিম্পিয়াড ২০২৬ (অনলাইন) প্রতিযোগিতায় {প্রতিষ্ঠান} হতে {গ্রুপ} হইতে অংশগ্রহণ করিয়াছিলেন। উক্ত প্রতিযোগী {সময়} এর মধ্যে পরীক্ষা সম্পন্ন করিয়া {মার্ক} মার্ক অর্জন করিয়াছিলেন৷ আরো জানানো হচ্ছে যে, তিনি কৃতিত্বের সহিত উক্ত প্রতিযোগিতায় {অবস্থান} তম অবস্থান অধিকার করিয়াছেন। আমরা তাহার অদূর ভবিষ্যতের সাফল্য কামনা করি এবং সুস্বাস্থ্য ও দীর্ঘায়ু কামনা করি।
-                                </p>
+                <div id="previewArea" class="hidden">
+                    <div class="preview-wrapper mb-6 border-4 border-slate-800 shadow-2xl">
+                        <div id="preview-scaler">
+                            <div id="certificate-wrapper">
+                                <div class="content-area">
+                                    <p class="small-text">এই মর্মে প্রদান করা হইতেসে যে, জনাব/জনাবা,</p>
+                                    <h1 id="cName" class="large-name">রেদুয়ান আহমদ রাহি</h1>
+                                    <p class="small-text" id="cDescription">
+                                        <!-- Description injected here -->
+                                    </p>
+                                </div>
                             </div>
                         </div>
-                        <!-- REAL CERTIFICATE TEMPLATE END -->
+                    </div>
+
+                    <div class="flex gap-4">
+                        <button onclick="downloadPNG()" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white text-xl font-bold py-5 rounded-2xl shadow-lg transition-all transform hover:-translate-y-1">PNG ইমেজ</button>
+                        <button onclick="downloadPDF()" class="flex-1 bg-amber-600 hover:bg-amber-700 text-white text-xl font-bold py-5 rounded-2xl shadow-lg transition-all transform hover:-translate-y-1">PDF ফাইল</button>
                     </div>
                 </div>
             </div>
@@ -145,7 +165,7 @@
     </div>
 
     <script>
-        // আপনার কাঁচা ডেটা এখানে বসান (এক্সেলে যেমন থাকে)
+        // আপনার ডাটা
         const rawData = [
   { name: "রেদুয়ান আহমদ রাহি", email: "reduanahmedrahi2008@gmail.com", class: "৬ষ্ঠ", duration: "13m 5s", inst: "মেহেরপুর টেকনিক্যাল স্কুল এন্ড কলেজ", phone: "01930192071", score: "47 / 50", status: "Normal Submission" },
   { name: "শাহলিনা তাবাসসুম রাহি", email: "shahlinatabassumrahi@gmail.com", class: "৬ষ্ঠ", duration: "5m 19s", inst: "মোহাম্মদপুর গার্লস কলেজ", phone: "01943932804", score: "43 / 50", status: "Normal Submission" },
@@ -287,107 +307,80 @@
   { name: "মোঃ হাসনাত জামান", email: "mdhasnatjaman382@gmail.com", class: "অন্যান্য", duration: "2m 57s", inst: "মেহেরপুর সরকারি কলেজ", phone: "01867266940", score: "50 / 50", status: "Normal Submission" }
 ];
 
-        let sortedStudents = [];
+        let sortedData = [];
 
-        // সময়কে সেকেন্ডে কনভার্ট করার ফাংশন (র‍্যাঙ্কিং এর জন্য)
-        function parseDuration(str) {
-            const m = str.match(/(\d+)m/);
-            const s = str.match(/(\d+)s/);
-            const minutes = m ? parseInt(m[1]) : 0;
-            const seconds = s ? parseInt(s[1]) : 0;
-            return (minutes * 60) + seconds;
+        function parseTime(str) {
+            const m = str.match(/(\d+)m/) || [0,0];
+            const s = str.match(/(\d+)s/) || [0,0];
+            return (parseInt(m[1]) * 60) + parseInt(s[1]);
         }
 
-        // গ্রুপ ডিটেক্ট করার ফাংশন
-        function getGroup(className) {
-            if (className.includes("৬ষ্ঠ") || className.includes("৭ম") || className.includes("৮ম") || className.includes("৯ম") || className.includes("১০ম")) {
-                return "৬ষ্ঠ-১০ম বা সমমান গ্রুপ";
-            } else if (className.includes("একাদশ") || className.includes("দ্বাদশ") || className.includes("১১") || className.includes("১২")) {
-                return "১১শ-১২শ বা সমমান গ্রুপ";
-            } else {
-                return "অনার্স-মাস্টার্স বা সমমান গ্রুপ";
-            }
+        function getGroupName(className) {
+            if (["৬ষ্ঠ","৭ম","৮ম","৯ম","১০ম"].some(v => className.includes(v))) return "৬ষ্ঠ-১০ম বা সমমান গ্রুপ";
+            if (["একাদশ","দ্বাদশ","১১","১২"].some(v => className.includes(v))) return "১১শ-১২শ বা সমমান গ্রুপ";
+            return "অনার্স-মাস্টার্স বা সমমান গ্রুপ";
         }
 
-        // ডাটা প্রসেসিং ও র‍্যাঙ্কিং
-        function processData() {
-            // ১. স্কোর অনুযায়ী (বড় থেকে ছোট), ২. সময় অনুযায়ী (ছোট থেকে বড়) সর্ট করা
-            sortedStudents = [...rawData].sort((a, b) => {
-                if (parseInt(b.score) !== parseInt(a.score)) {
-                    return parseInt(b.score) - parseInt(a.score);
-                }
-                return parseDuration(a.duration) - parseDuration(b.duration);
-            }).map((s, index) => ({ ...s, position: index + 1 }));
+        function init() {
+            sortedData = [...rawData].sort((a, b) => {
+                if (parseInt(b.score) !== parseInt(a.score)) return parseInt(b.score) - parseInt(a.score);
+                return parseTime(a.duration) - parseTime(b.duration);
+            }).map((s, i) => ({ ...s, rank: i + 1 }));
 
-            renderLeaderboard(sortedStudents);
-        }
-
-        function renderLeaderboard(data) {
             const body = document.getElementById('leaderboardBody');
-            body.innerHTML = data.map(s => `
-                <tr onclick="selectStudent('${s.phone}')" class="hover:bg-slate-700/50 cursor-pointer border-b border-slate-700/50 transition">
-                    <td class="p-4 font-bold text-amber-500">${s.position} তম</td>
-                    <td class="p-4 font-semibold">${s.name}</td>
-                    <td class="p-4 text-xs opacity-70">${s.score} / ${s.total}</td>
+            body.innerHTML = sortedData.map(s => `
+                <tr onclick="selectStudent('${s.phone}')" class="hover:bg-slate-800 cursor-pointer border-b border-slate-800 transition">
+                    <td class="p-4 text-center font-bold text-amber-500">${s.rank}</td>
+                    <td class="p-4 font-medium">${s.name}</td>
+                    <td class="p-4 text-right font-mono text-xs">${s.score}/${s.total}</td>
                 </tr>
             `).join('');
         }
 
         function searchProfiles() {
-            const query = document.getElementById('searchInput').value.toLowerCase();
+            const query = document.getElementById('searchInput').value.trim().toLowerCase();
             const popup = document.getElementById('searchPopup');
-            
-            if (!query) { popup.classList.add('hidden'); return; }
+            if (query.length < 1) { popup.classList.add('hidden'); return; }
 
-            const filtered = sortedStudents.filter(s => 
-                s.name.toLowerCase().includes(query) || s.phone.includes(query)
-            );
-
+            const filtered = sortedData.filter(s => s.name.toLowerCase().includes(query) || s.phone.includes(query));
             if (filtered.length > 0) {
                 popup.innerHTML = filtered.map(s => `
                     <div onclick="selectStudent('${s.phone}')" class="p-4 hover:bg-slate-700 border-b border-slate-700 cursor-pointer">
-                        <div class="font-bold">${s.name}</div>
-                        <div class="text-xs text-slate-400">${s.institution} | ${s.phone}</div>
+                        <p class="font-bold text-amber-400">${s.name}</p>
+                        <p class="text-xs text-slate-400">${s.institution}</p>
                     </div>
                 `).join('');
                 popup.classList.remove('hidden');
             } else {
-                popup.innerHTML = `<div class="p-4 text-slate-500 text-sm">কোনো তথ্য পাওয়া যায়নি</div>`;
+                popup.innerHTML = `<div class="p-4 text-slate-500">পাওয়া যায়নি</div>`;
                 popup.classList.remove('hidden');
             }
         }
 
         function selectStudent(phone) {
-            const s = sortedStudents.find(student => student.phone === phone);
+            const s = sortedData.find(st => st.phone === phone);
             if (!s) return;
 
             document.getElementById('placeholder').classList.add('hidden');
-            document.getElementById('previewContainer').classList.remove('hidden');
+            document.getElementById('previewArea').classList.remove('hidden');
             document.getElementById('searchPopup').classList.add('hidden');
             document.getElementById('searchInput').value = s.name;
-            
-            // বাটন এনাবেল করা
-            document.getElementById('btnPng').disabled = false;
-            document.getElementById('btnPdf').disabled = false;
 
-            // সার্টিফিকেটে ডাটা বসানো
             document.getElementById('cName').innerText = s.name;
+            const group = getGroupName(s.class);
+            const timeStr = s.duration.replace('m', ' মিনিট').replace('s', ' সেকেন্ড');
             
-            // সময়ের ফরম্যাট (মিনিট ও সেকেন্ড আলাদা করা)
-            const dur = s.duration.replace('m', ' মিনিট').replace('s', ' সেকেন্ড');
-            const group = getGroup(s.class);
+            const descText = `বাংলাদেশ ইসলামি ছাত্রশিবির, মেহেরপুর সরকারি কলেজ শাখা কর্তৃক ১৫-১৮ই রমজান ১৪৪৭ হিজরি তারিখে আয়োজিত রমাদান অলিম্পিয়াড ২০২৬ (অনলাইন) প্রতিযোগিতায় ${s.institution} হতে ${group} হইতে অংশগ্রহণ করিয়াছিলেন। উক্ত প্রতিযোগী ${timeStr} এর মধ্যে পরীক্ষা সম্পন্ন করিয়া ${s.score} মার্ক অর্জন করিয়াছিলেন৷ আরো জানানো হচ্ছে যে, তিনি কৃতিত্বের সহিত উক্ত প্রতিযোগিতায় ${s.rank} তম অবস্থান অধিকার করিয়াছেন। আমরা তাহার অদূর ভবিষ্যতের সাফল্য কামনা করি এবং সুস্বাস্থ্য ও দীর্ঘায়ু কামনা করি।`;
             
-            const desc = `বাংলাদেশ ইসলামি ছাত্রশিবির, মেহেরপুর সরকারি কলেজ শাখা কর্তৃক ১৫-১৮ই রমজান ১৪৪৭ হিজরি তারিখে আয়োজিত রমাদান অলিম্পিয়াড ২০২৬ (অনলাইন) প্রতিযোগিতায় ${s.institution} হতে ${group} হইতে অংশগ্রহণ করিয়াছিলেন। উক্ত প্রতিযোগী ${dur} এর মধ্যে পরীক্ষা সম্পন্ন করিয়া ${s.score} মার্ক অর্জন করিয়াছিলেন৷ আরো জানানো হচ্ছে যে, তিনি কৃতিত্বের সহিত উক্ত প্রতিযোগিতায় ${s.position} তম অবস্থান অধিকার করিয়াছেন। আমরা তাহার অদূর ভবিষ্যতের সাফল্য কামনা করি এবং সুস্বাস্থ্য ও দীর্ঘায়ু কামনা করি।`;
-            
-            document.getElementById('cDescription').innerText = desc;
+            document.getElementById('cDescription').innerText = descText;
+            window.scrollTo({ top: document.getElementById('previewArea').offsetTop - 50, behavior: 'smooth' });
         }
 
         async function downloadPNG() {
             const cert = document.getElementById('certificate-wrapper');
-            const name = document.getElementById('cName').innerText;
-            const canvas = await html2canvas(cert, { scale: 1 });
+            const canvas = await html2canvas(cert, { scale: 1, useCORS: true });
             const link = document.createElement('a');
-            link.download = `Ramadan_Olympiad_Certificate_${name}.png`;
+            link.download = `Sanad_${document.getElementById('cName').innerText}.png`;
             link.href = canvas.toDataURL('image/png');
             link.click();
         }
@@ -395,16 +388,14 @@
         async function downloadPDF() {
             const { jsPDF } = window.jspdf;
             const cert = document.getElementById('certificate-wrapper');
-            const name = document.getElementById('cName').innerText;
-            const canvas = await html2canvas(cert, { scale: 1 });
+            const canvas = await html2canvas(cert, { scale: 1, useCORS: true });
             const imgData = canvas.toDataURL('image/png');
-            
             const pdf = new jsPDF('l', 'px', [2000, 1414]);
             pdf.addImage(imgData, 'PNG', 0, 0, 2000, 1414);
-            pdf.save(`Ramadan_Olympiad_Certificate_${name}.pdf`);
+            pdf.save(`Sanad_${document.getElementById('cName').innerText}.pdf`);
         }
 
-        window.onload = processData;
+        window.onload = init;
     </script>
 </body>
-    </html>
+</html>

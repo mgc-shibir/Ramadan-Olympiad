@@ -4,20 +4,17 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>রমজান অলিম্পিয়াড ২০২৬ - সার্টিফিকেট পোর্টাল</title>
-    <!-- Hind Siliguri Font -->
     <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- html2canvas for PNG and jsPDF for PDF -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     
     <style>
         body {
             font-family: 'Hind Siliguri', sans-serif;
-            background-color: #f0f4f8;
+            background-color: #f8fafc;
         }
 
-        /* সার্টিফিকেট কন্টেইনার স্টাইল */
         #certificate-wrapper {
             width: 2000px;
             height: 1414px;
@@ -26,29 +23,8 @@
             background-size: cover;
             background-position: center;
             color: white;
-            text-shadow: 3px 3px 8px rgba(0, 0, 0, 0.9), -3px -3px 8px rgba(0, 0, 0, 0.9);
-            flex-shrink: 0;
-            display: none; /* ডিফল্টভাবে লুকানো, শুধু রেন্ডারিং এর জন্য */
-        }
-
-        /* প্রিভিউ এর জন্য স্কেলিং */
-        #preview-container {
-            width: 100%;
-            max-width: 800px;
-            overflow: hidden;
-            border-radius: 12px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-            margin: 20px auto;
-            background: #fff;
-            aspect-ratio: 2000 / 1414;
-            position: relative;
-        }
-
-        #preview-canvas {
-            transform-origin: top left;
-            position: absolute;
-            top: 0;
-            left: 0;
+            text-shadow: 4px 4px 10px rgba(0, 0, 0, 0.9);
+            display: none;
         }
 
         .cert-content {
@@ -65,87 +41,86 @@
         }
 
         .user-name {
-            font-size: 85px;
+            font-size: 90px;
             font-weight: 700;
-            margin-bottom: 40px;
+            margin: 30px 0;
             line-height: 1.2;
         }
 
         .body-text {
             font-size: 38px;
-            line-height: 1.8;
+            line-height: 1.7;
             font-weight: 400;
         }
 
-        .intro-text {
-            font-size: 30px;
-            margin-bottom: 10px;
+        .intro-text { font-size: 32px; }
+
+        #preview-container {
+            width: 100%;
+            max-width: 850px;
+            margin: 20px auto;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+            background: #fff;
+            aspect-ratio: 2000 / 1414;
+            position: relative;
+            border: 5px solid #fff;
         }
 
         .loading-overlay {
             position: fixed;
             inset: 0;
-            background: rgba(0,0,0,0.7);
+            background: rgba(0,0,0,0.8);
             display: none;
+            flex-direction: column;
             justify-content: center;
             align-items: center;
             z-index: 1000;
             color: white;
-            font-size: 24px;
+            gap: 15px;
         }
     </style>
 </head>
-<body class="p-4 md:p-8">
+<body class="bg-slate-50 min-h-screen">
 
-    <div class="max-w-4xl mx-auto">
-        <!-- হেডার -->
-        <header class="text-center mb-8">
-            <h1 class="text-3xl md:text-4xl font-bold text-emerald-800 mb-2">রমজান অলিম্পিয়াড ২০২৬</h1>
-            <p class="text-gray-600">আপনার নাম বা ফোন নম্বর দিয়ে সার্টিফিকেট খুঁজুন</p>
+    <div class="max-w-5xl mx-auto px-4 py-10">
+        <header class="text-center mb-10">
+            <h1 class="text-4xl font-bold text-emerald-900 mb-2">রমজান অলিম্পিয়াড ২০২৬</h1>
+            <p class="text-emerald-700 text-lg">ফলাফল ও সার্টিফিকেট ডাউনলোড পোর্টাল</p>
         </header>
 
-        <!-- সার্চ সেকশন -->
-        <div class="bg-white p-6 rounded-xl shadow-md mb-8">
+        <div class="bg-white p-8 rounded-2xl shadow-xl mb-10 border border-emerald-50">
+            <label class="block text-emerald-900 font-semibold mb-3 text-lg">অংশগ্রহণকারী খুঁজুন:</label>
             <div class="relative">
-                <input type="text" id="searchInput" placeholder="আপনার নাম বা ফোন নম্বর লিখুন..." 
-                    class="w-full px-5 py-3 border-2 border-emerald-100 rounded-lg focus:outline-none focus:border-emerald-500 text-lg transition-all">
-                <div id="resultsList" class="absolute w-full bg-white shadow-xl rounded-b-lg mt-1 z-50 hidden max-h-60 overflow-y-auto border border-gray-100">
-                    <!-- সার্চ রেজাল্ট এখানে আসবে -->
+                <input type="text" id="searchInput" placeholder="নাম বা মোবাইল নম্বর লিখুন..." 
+                    class="w-full px-6 py-4 border-2 border-emerald-100 rounded-xl focus:outline-none focus:border-emerald-500 text-xl transition-all shadow-inner">
+                <div id="resultsList" class="absolute w-full bg-white shadow-2xl rounded-xl mt-2 z-50 hidden max-h-80 overflow-y-auto border border-emerald-100 divide-y divide-emerald-50">
                 </div>
             </div>
         </div>
 
-        <!-- প্রিভিউ সেকশন -->
-        <div id="certArea" class="hidden">
-            <h2 class="text-xl font-semibold mb-4 text-center text-gray-700">সার্টিফিকেট প্রিভিউ</h2>
-            <div id="preview-container">
-                <div id="inner-preview"></div>
-            </div>
+        <div id="certArea" class="hidden animate-in fade-in duration-500">
+            <div class="flex flex-col items-center">
+                <h2 class="text-2xl font-bold text-slate-800 mb-6">আপনার সার্টিফিকেটের প্রিভিউ:</h2>
+                <div id="preview-container">
+                    <div id="inner-preview" class="w-full h-full flex items-center justify-center text-slate-400">
+                        প্রিভিউ লোড হচ্ছে...
+                    </div>
+                </div>
 
-            <!-- ডাউনলোড বাটনসমূহ -->
-            <div class="flex flex-wrap justify-center gap-4 mt-8">
-                <button onclick="downloadImage()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-8 py-3 rounded-full font-semibold transition-all shadow-lg flex items-center gap-2">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                        <path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd" />
-                    </svg>
-                    PNG ডাউনলোড
-                </button>
-                <button onclick="downloadPDF()" class="bg-red-600 hover:bg-red-700 text-white px-8 py-3 rounded-full font-semibold transition-all shadow-lg flex items-center gap-2">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                        <path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z" clip-rule="evenodd" />
-                    </svg>
-                    PDF ডাউনলোড
-                </button>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-10 w-full max-w-md">
+                    <button onclick="downloadImage()" class="flex items-center justify-center gap-3 bg-emerald-600 hover:bg-emerald-700 text-white py-4 rounded-xl font-bold text-lg transition-all shadow-lg active:scale-95">
+                        PNG ফরম্যাটে ডাউনলোড
+                    </button>
+                    <button onclick="downloadPDF()" class="flex items-center justify-center gap-3 bg-red-600 hover:bg-red-700 text-white py-4 rounded-xl font-bold text-lg transition-all shadow-lg active:scale-95">
+                        PDF ফরম্যাটে ডাউনলোড
+                    </button>
+                </div>
             </div>
         </div>
-
-        <!-- ফুটার -->
-        <footer class="mt-12 text-center text-gray-500 text-sm">
-            &copy; ২০২৬ বাংলাদেশ ইসলামি ছাত্রশিবির, মেহেরপুর সরকারি কলেজ শাখা।
-        </footer>
     </div>
 
-    <!-- হিডেন মাস্টার সার্টিফিকেট (ডাউনলোড এর জন্য ব্যবহৃত হবে) -->
+    <!-- মাস্টার সার্টিফিকেট কন্টেইনার -->
     <div id="certificate-wrapper">
         <div class="cert-content">
             <div class="intro-text">এই মর্মে প্রদান করা হইতেসে যে, জনাব/জনাবা,</div>
@@ -154,17 +129,18 @@
         </div>
     </div>
 
-    <!-- লোডিং এনিমেশন -->
-    <div id="loader" class="loading-overlay">সার্টিফিকেট তৈরি হচ্ছে, অনুগ্রহ করে অপেক্ষা করুন...</div>
+    <div id="loader" class="loading-overlay">
+        <div class="w-12 h-12 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin"></div>
+        <p class="text-xl">সার্টিফিকেট তৈরি হচ্ছে...</p>
+    </div>
 
     <script>
         /**
-         * ৩. ডেটা এন্ট্রি (ম্যানুয়াল ইনপুট):
-         * এখানে আপনার ডেটা ম্যানুয়ালি ইনপুট দিন (নাম, ফোন, প্রতিষ্ঠান, স্কোর, সময়, ক্লাস)
-         * সময় ফরম্যাট: সেকেন্ড হিসেবে দিন (যেমন ২ মিনিট ৩০ সেকেন্ড = ১৫০)
+         * ৪. ডেটা এন্ট্রি (ম্যানুয়াল ইনপুট):
+         * এখানে আপনার ডেটা ম্যানুয়ালি ইনপুট দিন।
          */
-        const students = [
-            { name: "রেদুয়ান আহমদ রাহি", email: "reduanahmedrahi2008@gmail.com", class: "৬ষ্ঠ", duration: "13m 5s", inst: "মেহেরপুর টেকনিক্যাল স্কুল এন্ড কলেজ", phone: "01930192071", score: "47 / 50", status: "Normal Submission" },
+        const rawStudents = [
+{ name: "রেদুয়ান আহমদ রাহি", email: "reduanahmedrahi2008@gmail.com", class: "৬ষ্ঠ", duration: "13m 5s", inst: "মেহেরপুর টেকনিক্যাল স্কুল এন্ড কলেজ", phone: "01930192071", score: "47 / 50", status: "Normal Submission" },
   { name: "শাহলিনা তাবাসসুম রাহি", email: "shahlinatabassumrahi@gmail.com", class: "৬ষ্ঠ", duration: "5m 19s", inst: "মোহাম্মদপুর গার্লস কলেজ", phone: "01943932804", score: "43 / 50", status: "Normal Submission" },
   { name: "মোছা :মরিয়ম", email: "muskanjannat859807444@gmail.com", class: "একাদশ", duration: "8m 26s", inst: "মেহেরপুর সরকারি মহিলা কলেজ", phone: "01859807444", score: "49 / 50", status: "Normal Submission" },
   { name: "ঐশি হাবিব এশা", email: "Oishehabibesha@gmail.com", class: "একাদশ", duration: "5m 35s", inst: "আদমজী ক্যান্ট. কলেজ", phone: "01718733287", score: "48 / 50", status: "Normal Submission" },
@@ -304,34 +280,50 @@
   { name: "মোঃ হাসনাত জামান", email: "mdhasnatjaman382@gmail.com", class: "অন্যান্য", duration: "2m 57s", inst: "মেহেরপুর সরকারি কলেজ", phone: "01867266940", score: "50 / 50", status: "Normal Submission" }
 ];
 
-        // র‍্যাঙ্কিং ক্যালকুলেশন (স্কোর বেশি এবং সময় কম এর ভিত্তিতে)
-        const calculateRankings = (data) => {
-            return [...data].sort((a, b) => {
-                if (b.score !== a.score) return b.score - a.score;
-                return a.time - b.time;
+        // ১. ডেটা ক্লিনিং এবং নরমালাইজেশন ফাংশন
+        const processData = (list) => {
+            return list.map((item, index) => {
+                // '13m 5s' কে সেকেন্ডে রূপান্তর
+                let totalSeconds = 0;
+                const durationStr = item.duration || "0m 0s";
+                const mMatch = durationStr.match(/(\d+)m/);
+                const sMatch = durationStr.match(/(\d+)s/);
+                if (mMatch) totalSeconds += parseInt(mMatch[1]) * 60;
+                if (sMatch) totalSeconds += parseInt(sMatch[1]);
+
+                // '47 / 50' থেকে শুধু ৪৭ বের করা
+                const scoreValue = parseInt(item.score.split('/')[0]) || 0;
+
+                return {
+                    ...item,
+                    id: index + 1,
+                    numericScore: scoreValue,
+                    numericTime: totalSeconds,
+                    institution: item.inst || "উল্লেখিত নয়" // inst থেকে institution
+                };
             });
         };
 
-        const sortedStudents = calculateRankings(students);
+        const students = processData(rawStudents);
 
-        // গ্রুপ বের করার লজিক
+        // ২. র‍্যাঙ্কিং ক্যালকুলেশন (স্কোর বেশি > সময় কম)
+        const sortedStudents = [...students].sort((a, b) => {
+            if (b.numericScore !== a.numericScore) return b.numericScore - a.numericScore;
+            return a.numericTime - b.numericTime;
+        });
+
+        // ৩. গ্রুপ সেকশন লজিক
         const getGroupName = (className) => {
+            if (!className) return "সাধারণ গ্রুপ";
             const cls = className.toLowerCase();
             if (cls.includes('৬') || cls.includes('৭') || cls.includes('৮') || cls.includes('৯') || cls.includes('১০') || cls.includes('6') || cls.includes('7') || cls.includes('8') || cls.includes('9') || cls.includes('10')) {
                 return "৬ষ্ঠ-১০ম বা সমমান গ্রুপ";
             } else if (cls.includes('১১') || cls.includes('১২') || cls.includes('একাদশ') || cls.includes('দ্বাদশ') || cls.includes('11') || cls.includes('12')) {
                 return "১১শ-১২শ বা সমমান গ্রুপ";
-            } else if (cls.includes('অনার্স') || cls.includes('মাস্টার্স') || cls.includes('ডিগ্রি') || cls.includes('university')) {
+            } else if (cls.includes('অনার্স') || cls.includes('মাস্টার্স') || cls.includes('অন্যান্য') || cls.includes('university')) {
                 return "অনার্স-মাস্টার্স বা সমমান গ্রুপ";
             }
             return "সাধারণ গ্রুপ";
-        };
-
-        // সময় ফরম্যাট (সেকেন্ড -> মিনিট ও সেকেন্ড)
-        const formatTime = (seconds) => {
-            const m = Math.floor(seconds / 60);
-            const s = seconds % 60;
-            return `${m} মিনিট ${s} সেকেন্ড`;
         };
 
         const searchInput = document.getElementById('searchInput');
@@ -341,7 +333,7 @@
 
         let selectedUser = null;
 
-        // সার্চ ফাংশনালিটি
+        // ৪. সার্চ ফাংশন
         searchInput.addEventListener('input', (e) => {
             const query = e.target.value.trim();
             if (query.length < 2) {
@@ -355,80 +347,66 @@
 
             if (filtered.length > 0) {
                 resultsList.innerHTML = filtered.map(s => `
-                    <div class="px-4 py-3 hover:bg-emerald-50 cursor-pointer border-b border-gray-50 last:border-0" onclick="selectUser(${s.id})">
-                        <div class="font-semibold text-gray-800">${s.name}</div>
-                        <div class="text-xs text-gray-500">${s.phone} | ${s.institution}</div>
+                    <div class="px-5 py-4 hover:bg-emerald-50 cursor-pointer transition-colors" onclick="selectUser(${s.id})">
+                        <div class="font-bold text-emerald-900">${s.name}</div>
+                        <div class="text-sm text-emerald-600">${s.phone} | ${s.institution}</div>
                     </div>
                 `).join('');
                 resultsList.classList.remove('hidden');
             } else {
-                resultsList.innerHTML = `<div class="px-4 py-3 text-gray-400 text-sm">কোনো তথ্য পাওয়া যায়নি</div>`;
+                resultsList.innerHTML = `<div class="px-5 py-4 text-gray-400">কোনো তথ্য মেলেনি</div>`;
                 resultsList.classList.remove('hidden');
             }
         });
 
-        // ইউজার সিলেক্ট করা
         window.selectUser = (id) => {
             selectedUser = students.find(s => s.id === id);
             resultsList.classList.add('hidden');
             searchInput.value = selectedUser.name;
             
+            // র‍্যাঙ্ক খুঁজে বের করা
             const rank = sortedStudents.findIndex(s => s.id === id) + 1;
             renderCertificate(selectedUser, rank);
         };
 
-        // সার্টিফিকেট রেন্ডার করা (হাইডেন ডিভ এ)
         const renderCertificate = (user, rank) => {
             const wrapper = document.getElementById('certificate-wrapper');
             const nameEl = document.getElementById('certName');
             const bodyEl = document.getElementById('certBody');
             
             nameEl.innerText = user.name;
-            
             const group = getGroupName(user.class);
-            const timeStr = formatTime(user.time);
             
-            bodyEl.innerHTML = `বাংলাদেশ ইসলামি ছাত্রশিবির, মেহেরপুর সরকারি কলেজ শাখা কর্তৃক ১৫-১৮ই রমজান ১৪৪৭ হিজরি তারিখে আয়োজিত রমাদান অলিম্পিয়াড ২০২৬ (অনলাইন) প্রতিযোগিতায় <b>${user.institution}</b> হতে <b>${group}</b> হইতে অংশগ্রহণ করিয়াছিলেন। উক্ত প্রতিযোগী <b>${timeStr}</b> এর মধ্যে পরীক্ষা সম্পন্ন করিয়া <b>${user.score}</b> মার্ক অর্জন করিয়াছিলেন৷ আরো জানানো হচ্ছে যে, তিনি কৃতিত্বের সহিত উক্ত প্রতিযোগিতায় <b>${rank}</b> তম অবস্থান অধিকার করিয়াছেন। আমরা তাহার অদূর ভবিষ্যতের সাফল্য কামনা করি এবং সুস্বাস্থ্য ও দীর্ঘায়ু কামনা করি।`;
+            bodyEl.innerHTML = `বাংলাদেশ ইসলামি ছাত্রশিবির, মেহেরপুর সরকারি কলেজ শাখা কর্তৃক ১৫-১৮ই রমজান ১৪৪৭ হিজরি তারিখে আয়োজিত রমাদান অলিম্পিয়াড ২০২৬ (অনলাইন) প্রতিযোগিতায় <b>${user.institution}</b> হতে <b>${group}</b> হইতে অংশগ্রহণ করিয়াছিলেন। উক্ত প্রতিযোগী <b>${user.duration}</b> এর মধ্যে পরীক্ষা সম্পন্ন করিয়া <b>${user.numericScore}</b> মার্ক অর্জন করিয়াছিলেন৷ আরো জানানো হচ্ছে যে, তিনি কৃতিত্বের সহিত উক্ত প্রতিযোগিতায় <b>${rank}</b> তম অবস্থান অধিকার করিয়াছেন। আমরা তাহার অদূর ভবিষ্যতের সাফল্য কামনা করি এবং সুস্বাস্থ্য ও দীর্ঘায়ু কামনা করি।`;
 
-            // প্রিভিউ তৈরি করা
             certArea.classList.remove('hidden');
             updatePreview();
         };
 
-        // প্রিভিউ ক্যানভাস আপডেট করা (স্কেলিং সহ)
         const updatePreview = () => {
             const wrapper = document.getElementById('certificate-wrapper');
+            const previewBox = document.getElementById('inner-preview');
             wrapper.style.display = 'block';
             
-            html2canvas(wrapper, {
-                useCORS: true,
-                scale: 0.5 // প্রিভিউ এর জন্য মিডিয়াম স্কেল
-            }).then(canvas => {
-                const container = document.getElementById('inner-preview');
-                container.innerHTML = '';
-                
-                // CSS দিয়ে ফিট করা
+            html2canvas(wrapper, { useCORS: true, scale: 0.45 }).then(canvas => {
+                previewBox.innerHTML = '';
                 canvas.style.width = '100%';
-                canvas.style.height = 'auto';
-                container.appendChild(canvas);
+                canvas.style.height = '100%';
+                canvas.style.objectFit = 'contain';
+                previewBox.appendChild(canvas);
                 wrapper.style.display = 'none';
             });
         };
 
-        // হাই-কোয়ালিটি PNG ডাউনলোড
         window.downloadImage = () => {
+            if(!selectedUser) return;
             loader.style.display = 'flex';
             const wrapper = document.getElementById('certificate-wrapper');
             wrapper.style.display = 'block';
 
-            html2canvas(wrapper, {
-                useCORS: true,
-                scale: 1, // অরিজিনাল ২০০০ পিক্সেল রেজোলিউশন
-                width: 2000,
-                height: 1414
-            }).then(canvas => {
+            html2canvas(wrapper, { useCORS: true, scale: 1 }).then(canvas => {
                 const link = document.createElement('a');
-                link.download = `Certificate_${selectedUser.name.replace(/\s+/g, '_')}.png`;
+                link.download = `${selectedUser.name}_Ramadan_Olympiad_2026.png`;
                 link.href = canvas.toDataURL('image/png', 1.0);
                 link.click();
                 wrapper.style.display = 'none';
@@ -436,25 +414,18 @@
             });
         };
 
-        // হাই-কোয়ালিটি PDF ডাউনলোড
         window.downloadPDF = () => {
+            if(!selectedUser) return;
             loader.style.display = 'flex';
             const wrapper = document.getElementById('certificate-wrapper');
             wrapper.style.display = 'block';
 
-            html2canvas(wrapper, {
-                useCORS: true,
-                scale: 1,
-                width: 2000,
-                height: 1414
-            }).then(canvas => {
+            html2canvas(wrapper, { useCORS: true, scale: 1 }).then(canvas => {
                 const imgData = canvas.toDataURL('image/png', 1.0);
                 const { jsPDF } = window.jspdf;
-                // ল্যান্ডস্কেপ মোড, পিক্সেল অনুযায়ী সাইজ
                 const pdf = new jsPDF('l', 'px', [2000, 1414]);
                 pdf.addImage(imgData, 'PNG', 0, 0, 2000, 1414);
-                pdf.save(`Certificate_${selectedUser.name.replace(/\s+/g, '_')}.pdf`);
-                
+                pdf.save(`${selectedUser.name}_Ramadan_Olympiad_2026.pdf`);
                 wrapper.style.display = 'none';
                 loader.style.display = 'none';
             });
